@@ -1,10 +1,11 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from './entity/UserEntity';
 import { CreateUserDto } from '../auth/dto/CreateUser.dto';
 import { AuthResponse } from '../types';
 import { JwtService } from '../jwt/jwt.service';
+import { EditProfileDto } from './dto/EditProfile.dto';
 
 @Injectable()
 export class UserService {
@@ -26,6 +27,29 @@ export class UserService {
     const newUser = new UserEntity();
     Object.assign(newUser, user);
     return await this.userRepository.save(newUser);
+  }
+
+  async update(data: EditProfileDto): Promise<UserEntity> {
+    const user = await this.findUserById(data.userId);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.username = data.username;
+    user.email = data.email;
+
+    return this.userRepository.save(user);
+  }
+
+  async delete(userId: number) {
+    const user = await this.findUserById(userId);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return await this.userRepository.remove(user);
   }
 
   async findUserByEmail(email: string) {

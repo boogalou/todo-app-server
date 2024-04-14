@@ -3,6 +3,7 @@ import {
   IsNotEmpty,
   IsString,
   IsStrongPassword,
+  Length,
   MaxLength,
   MinLength,
 } from 'class-validator';
@@ -20,13 +21,13 @@ export class CreateUserDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  @MinLength(4)
-  @MaxLength(25)
+  @Length(4, 150)
   readonly username: string;
 
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
+  @MaxLength(255)
   @IsEmail()
   readonly email: string;
 
