@@ -12,14 +12,12 @@ export class UserController {
   @Patch('edit-profile')
   async editUser(@Body('user') editProfileDto: EditProfileDto, @Res() res: Response) {
     const editedUser = this.userService.update(editProfileDto);
-
     res.status(HttpStatus.OK).send(editedUser);
   }
 
   @Delete('delete-account')
   async deleteAccount(@Param('id') userId: string, @Res() res: Response) {
     await this.userService.delete(Number(userId));
-
     res.status(HttpStatus.OK).send({ message: 'User was successfully deleted' });
   }
 

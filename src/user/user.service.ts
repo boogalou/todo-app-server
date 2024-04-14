@@ -15,7 +15,7 @@ export class UserService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async create(user: CreateUserDto): Promise<UserEntity> {
+  async create(user: CreateUserDto) {
     const existingUser = await this.findUserByEmail(user.email);
 
     if (existingUser) {
@@ -29,7 +29,7 @@ export class UserService {
     return await this.userRepository.save(newUser);
   }
 
-  async update(data: EditProfileDto): Promise<UserEntity> {
+  async update(data: EditProfileDto) {
     const user = await this.findUserById(data.userId);
 
     if (!user) {
