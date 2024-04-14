@@ -5,6 +5,7 @@ import { dbconnectConfig } from './config/dbconnect.config';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { TaskModule } from './task/task.module';
+import { JwtModule } from './jwt/jwt.module';
 
 @Module({
   imports: [
@@ -13,8 +14,8 @@ import { TaskModule } from './task/task.module';
     UserModule,
     AuthModule,
     TaskModule,
+    JwtModule,
   ],
-  controllers: [],
   providers: [Logger],
 })
 export class AppModule {}

@@ -3,7 +3,6 @@ import { config } from 'dotenv';
 import { ConfigService } from '@nestjs/config';
 import { UserEntity } from '../user/entity/UserEntity';
 import { TaskEntity } from '../task/entity/Task.entity';
-import { Migrations1713056485785 } from '../migrations/1713056485785-migrations';
 
 config();
 
@@ -18,7 +17,7 @@ const typeormConfig = new DataSource({
   database: configService.getOrThrow('DB_NAME'),
   synchronize: false,
   entities: [UserEntity, TaskEntity],
-  migrations: [Migrations1713056485785],
+  migrations: [],
 });
 
 export default typeormConfig;
