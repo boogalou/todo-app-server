@@ -2,7 +2,7 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from './entity/UserEntity';
-import { CreateUserDto } from '../auth/dto/CreateUser.dto';
+import { UserDto } from '../auth/dto/AuthUser.dto';
 import { AuthResponse } from '../types';
 import { JwtService } from '../jwt/jwt.service';
 import { EditProfileDto } from './dto/EditProfile.dto';
@@ -15,7 +15,7 @@ export class UserService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async create(user: CreateUserDto) {
+  async create(user: UserDto) {
     const existingUser = await this.findUserByEmail(user.email);
 
     if (existingUser) {

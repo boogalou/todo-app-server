@@ -24,7 +24,7 @@ export class UserEntity {
   @Column({ nullable: false })
   password: string;
 
-  @Column({ name: 'user_pic' })
+  @Column({ name: 'user_pic', nullable: true })
   userPic: string;
 
   @CreateDateColumn({ name: 'created_at' })

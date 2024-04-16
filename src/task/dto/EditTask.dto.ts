@@ -1,8 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
-export class CreateTaskDto {
-  @ApiProperty({ required: false })
+export class EditTaskDto {
+  @ApiProperty()
+  @IsNotEmpty()
   @IsString()
   @MaxLength(255)
   readonly title: string;
@@ -16,15 +17,11 @@ export class CreateTaskDto {
   @IsString()
   readonly label: string;
 
-  @ApiProperty({ required: false })
+  @ApiProperty()
   @IsString()
   readonly category: string;
 
   @ApiProperty()
   @IsNotEmpty()
   readonly dueDate: Date;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  readonly isCompleted: boolean;
 }
