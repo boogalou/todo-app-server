@@ -62,7 +62,15 @@ export class TaskController {
   }
 
   @Patch(':id/edit')
-  async editTask(@Body('task') task: EditTaskDto) {}
+  async editTask(
+    @Param('id', ParseIntPipe) taskId: number,
+    @Body('taskData') taskData: EditTaskDto,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const updatedTask = await this.taskService.update(taskData, taskId, req);
+    res.status(HttpStatus.OK).send(updatedTask);
+  }
 
   @Delete(':id/delete')
   @ApiParam({

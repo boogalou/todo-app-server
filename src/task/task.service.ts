@@ -12,6 +12,7 @@ import { TaskEntity } from './entity/Task.entity';
 import { Repository } from 'typeorm';
 import { UserService } from '../user/user.service';
 import { JwtService } from '../jwt/jwt.service';
+import { EditTaskDto } from './dto/EditTask.dto';
 
 @Injectable()
 export class TaskService {
@@ -47,13 +48,7 @@ export class TaskService {
     const payload = this.jwtService.decodeToken(req);
     const userId = Number(payload.sub);
 
-    try {
-      return await this.tasksRepository.findOne({
-        where: { id: taskId, userId: userId },
-      });
-    } catch (err) {
-      throw new InternalServerErrorException('Database response error');
-    }
+    return await this.findTaskByUser(taskId, userId);
   }
 
   async getAll(userId: number, req: Request) {
@@ -106,9 +101,34 @@ export class TaskService {
     }
   }
 
+  async update(taskData: EditTaskDto, taskId: number, req: Request) {
+    const payload = this.jwtService.decodeToken(req);
+    const userId = Number(payload.sub);
+
+    if (!userId) {
+      throw new UnauthorizedException();
+    }
+
+    const task = await this.findTaskByUser(taskId, userId);
+
+    Object.assign(task, taskData);
+
+    return this.tasksRepository.save(task);
+  }
+
   async findById(taskId: number) {
     try {
       return await this.tasksRepository.findOne({ where: { id: taskId } });
+    } catch (err) {
+      throw new InternalServerErrorException('Database response error');
+    }
+  }
+
+  async findTaskByUser(taskId: number, userId: number) {
+    try {
+      return await this.tasksRepository.findOne({
+        where: { id: taskId, userId: userId },
+      });
     } catch (err) {
       throw new InternalServerErrorException('Database response error');
     }

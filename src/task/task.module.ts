@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { TaskController } from './task.controller';
 import { TaskEntity } from './entity/Task.entity';
@@ -8,7 +8,7 @@ import { JwtModule } from '../jwt/jwt.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([TaskEntity]), UserModule, JwtModule],
-  providers: [TaskService],
+  providers: [TaskService, Logger],
   controllers: [TaskController],
 })
 export class TaskModule {}

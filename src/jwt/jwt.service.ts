@@ -12,6 +12,7 @@ export class JwtService {
       {
         sub: userId,
         email: userEmail,
+        userId: userId,
       },
       this.configService.getOrThrow('JWT_ACCESS_SECRET'),
       { expiresIn: '10m' },
@@ -23,6 +24,7 @@ export class JwtService {
       {
         sub: userId,
         email: userEmail,
+        userId: userId,
       },
       this.configService.getOrThrow('JWT_REFRESH_SECRET'),
       {
@@ -36,6 +38,7 @@ export class JwtService {
       {
         sub: userId,
         email: userEmail,
+        userId: userId,
       },
       this.configService.getOrThrow('JWT_REFRESH_SECRET'),
       {

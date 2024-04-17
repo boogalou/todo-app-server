@@ -3,13 +3,11 @@ import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
 export class EditTaskDto {
   @ApiProperty()
-  @IsNotEmpty()
   @IsString()
   @MaxLength(255)
   readonly title: string;
 
   @ApiProperty()
-  @IsNotEmpty()
   @IsString()
   readonly description: string;
 
