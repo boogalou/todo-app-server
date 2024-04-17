@@ -11,14 +11,15 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { CreateUserDto, ILoginUserDto, LoginUserDto, UserDto } from './dto/AuthUser.dto';
+
 import { AuthService } from './auth.service';
 import { UserService } from '../user/user.service';
 import { Cookies } from '../middleware/Cookies.middleware';
 import { AuthResponseDto } from './dto/AuthResponse.dto';
+import { CreateUserDto, UserDataDto } from './dto/CreateUser.dto';
+import { LoginDataDto, LoginUserDto } from './dto/Login.dto';
 
 @ApiTags('auth')
-@UsePipes(new ValidationPipe())
 @Controller()
 export class AuthController {
   constructor(
@@ -27,6 +28,7 @@ export class AuthController {
   ) {}
 
   @Post('signup')
+  @UsePipes(new ValidationPipe())
   @ApiBody({
     type: CreateUserDto,
     description: 'Registration of a new user',
@@ -35,19 +37,18 @@ export class AuthController {
     type: AuthResponseDto,
     description: 'Successful user creation',
   })
-  async register(@Body('user') createUserDto: UserDto, @Res() res: Response) {
+  async register(@Body('user') createUserDto: UserDataDto, @Res() res: Response) {
+    console.log(createUserDto);
     const generateRefreshToken = true;
     const user = await this.userService.create(createUserDto);
     const authResponse = await this.userService.userBuilder(user, generateRefreshToken);
     this.setCookies(res, authResponse.refreshToken);
     delete authResponse.refreshToken;
-    res
-      .status(HttpStatus.CREATED)
-      .send(authResponse)
-      .send({ message: 'A new user was successfully created.' });
+    res.status(HttpStatus.CREATED).send(authResponse);
   }
 
   @Post('login')
+  @UsePipes(new ValidationPipe())
   @ApiBody({
     description: 'Registration of a new user',
     type: LoginUserDto,
@@ -56,7 +57,7 @@ export class AuthController {
     type: AuthResponseDto,
     description: 'Successful user creation',
   })
-  async login(@Body('user') loginUserDto: ILoginUserDto, @Res() res: Response) {
+  async login(@Body('user') loginUserDto: LoginDataDto, @Res() res: Response) {
     const generateRefreshToken = true;
     const user = await this.authService.login(loginUserDto);
     const authResponse = await this.userService.userBuilder(user, generateRefreshToken);

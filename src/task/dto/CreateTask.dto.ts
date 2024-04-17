@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsString, MaxLength, ValidateNested } from 'class-validator';
 
-export class CreateTaskDto {
+export class TaskDto {
   @ApiProperty({ required: false })
   @IsString()
   @MaxLength(255)
@@ -27,4 +27,10 @@ export class CreateTaskDto {
   @ApiProperty()
   @IsNotEmpty()
   readonly isCompleted: boolean;
+}
+
+export class CreateTaskDto {
+  @ApiProperty({ type: () => TaskDto })
+  @ValidateNested({ each: true })
+  task: () => TaskDto;
 }

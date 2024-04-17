@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { sign, verify } from 'jsonwebtoken';
+import { decode, JwtPayload, sign, verify } from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
+import { Request } from 'express';
 
 @Injectable()
 export class JwtService {
@@ -49,5 +50,12 @@ export class JwtService {
 
   validateRefreshToken(refreshToken: string) {
     return verify(refreshToken, this.configService.getOrThrow('JWT_REFRESH_SECRET'));
+  }
+
+  decodeToken(request: Request) {
+    const token = request.headers.authorization.split(' ')[1];
+    const jwtPayload = decode(token) as JwtPayload;
+
+    return jwtPayload;
   }
 }

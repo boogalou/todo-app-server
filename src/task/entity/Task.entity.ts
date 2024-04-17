@@ -14,6 +14,9 @@ export class TaskEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ name: 'user_id' })
+  userId: number;
+
   @Column()
   title: string;
 

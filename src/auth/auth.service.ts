@@ -4,7 +4,7 @@ import { JwtPayload } from 'jsonwebtoken';
 import { UserService } from '../user/user.service';
 import { JwtService } from '../jwt/jwt.service';
 import { UserEntity } from '../user/entity/UserEntity';
-import { ILoginUserDto } from './dto/AuthUser.dto';
+import { LoginDataDto } from './dto/Login.dto';
 
 @Injectable()
 export class AuthService {
@@ -13,8 +13,8 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async login(loginUser: ILoginUserDto): Promise<UserEntity> {
-    const user = await this.userService.findUserByEmail(loginUser.email);
+  async login(loginUser: LoginDataDto): Promise<UserEntity> {
+    const user = await this.userService.findByEmail(loginUser.email);
 
     if (!user) {
       throw new UnauthorizedException('Email or password is incorrect');
@@ -41,6 +41,6 @@ export class AuthService {
     }
 
     const userId = Number(tokenPayload.sub);
-    return this.userService.findUserById(userId);
+    return this.userService.findById(userId);
   }
 }

@@ -2,7 +2,7 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from './entity/UserEntity';
-import { UserDto } from '../auth/dto/AuthUser.dto';
+import { UserDataDto } from '../auth/dto/CreateUser.dto';
 import { AuthResponse } from '../types';
 import { JwtService } from '../jwt/jwt.service';
 import { EditProfileDto } from './dto/EditProfile.dto';
@@ -15,8 +15,8 @@ export class UserService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async create(user: UserDto) {
-    const existingUser = await this.findUserByEmail(user.email);
+  async create(user: UserDataDto) {
+    const existingUser = await this.findByEmail(user.email);
 
     if (existingUser) {
       throw new ConflictException({
@@ -29,8 +29,8 @@ export class UserService {
     return await this.userRepository.save(newUser);
   }
 
-  async update(data: EditProfileDto) {
-    const user = await this.findUserById(data.userId);
+  async update(userId: number, data: EditProfileDto) {
+    const user = await this.findById(userId);
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -43,7 +43,7 @@ export class UserService {
   }
 
   async delete(userId: number) {
-    const user = await this.findUserById(userId);
+    const user = await this.findById(userId);
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -52,11 +52,11 @@ export class UserService {
     return await this.userRepository.remove(user);
   }
 
-  async findUserByEmail(email: string) {
+  async findByEmail(email: string) {
     return await this.userRepository.findOne({ where: { email: email } });
   }
 
-  async findUserById(userId: number) {
+  async findById(userId: number) {
     return this.userRepository.findOne({ where: { id: userId } });
   }
 

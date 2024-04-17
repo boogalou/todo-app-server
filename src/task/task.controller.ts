@@ -1,34 +1,91 @@
-import { Body, Controller, Delete, Get, HttpStatus, Patch, Post, Res } from '@nestjs/common';
-import { Response } from 'express';
-import { ApiTags } from '@nestjs/swagger';
-import { CreateTaskDto } from './dto/CreateTask.dto';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Req,
+  Res,
+} from '@nestjs/common';
+import { Request, Response } from 'express';
+import { ApiBody, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { CreateTaskDto, TaskDto } from './dto/CreateTask.dto';
 import { TaskService } from './task.service';
 import { EditTaskDto } from './dto/EditTask.dto';
+import { TaskResponseDto } from './dto/TaskResponse.dto';
 
-@ApiTags('task')
-@Controller('task')
+@ApiTags('tasks')
+@Controller('tasks')
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
-  @Post('add')
-  async addNewTask(@Body('task') task: CreateTaskDto, @Res() res: Response) {
-    const newTask = await this.taskService.create(task);
-
+  @Post()
+  @ApiBody({ type: CreateTaskDto, description: 'Add a new task' })
+  @ApiResponse({ description: '', type: TaskResponseDto })
+  async addNewTask(@Body('task') task: TaskDto, @Req() req: Request, @Res() res: Response) {
+    const newTask = await this.taskService.create(task, req);
     res.status(HttpStatus.OK).send(newTask);
   }
 
-  @Patch('edit')
+  @Get(':id/details')
+  @ApiParam({
+    description: 'Task ID',
+    name: 'id',
+    type: 'string',
+  })
+  async getOneTask(
+    @Param('id', ParseIntPipe) taskId: number,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const task = await this.taskService.getOne(taskId, req);
+    res.status(HttpStatus.OK).send(task);
+  }
+
+  @Get(':id/tasks')
+  @ApiParam({
+    description: 'User ID',
+    name: 'id',
+    type: 'string',
+  })
+  async getAllTasks(
+    @Param('id', ParseIntPipe) userId: number,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const userTasks = await this.taskService.getAll(userId, req);
+    res.status(HttpStatus.OK).send(userTasks);
+  }
+
+  @Patch(':id/edit')
   async editTask(@Body('task') task: EditTaskDto) {}
 
-  @Delete('delete/:task_id')
-  async deleteTask() {}
+  @Delete(':id/delete')
+  @ApiParam({
+    description: 'Task ID',
+    name: 'id',
+    type: 'string',
+  })
+  async deleteTask(
+    @Param('id', ParseIntPipe) taskId: number,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    await this.taskService.delete(taskId, req);
+    res.status(HttpStatus.NO_CONTENT).send({
+      message: `The task with id${taskId} was successful deleted`,
+    });
+  }
 
-  @Get('all/:user_id')
-  async getTasks() {}
-
-  @Get('one/:task_id')
-  async getTask() {}
-
-  @Patch('complete/:task_id')
+  @Patch(':id/completed')
+  @ApiParam({
+    description: 'Task ID',
+    name: 'id',
+    type: 'string',
+  })
   async changeTaskStatus() {}
 }

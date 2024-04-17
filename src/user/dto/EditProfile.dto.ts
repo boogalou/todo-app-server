@@ -1,20 +1,7 @@
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-  Length,
-  MaxLength,
-} from 'class-validator';
+import { IsEmail, IsOptional, IsString, Length, MaxLength, ValidateNested } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class EditProfileDto {
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsNumber()
-  readonly userId: number;
-
   @ApiProperty()
   @IsOptional()
   @IsString()
@@ -27,4 +14,10 @@ export class EditProfileDto {
   @IsString()
   @MaxLength(255)
   readonly email: string;
+}
+
+export class ProfileDataDto {
+  @ApiProperty({ type: () => EditProfileDto })
+  @ValidateNested({ each: true })
+  profileData: EditProfileDto;
 }
