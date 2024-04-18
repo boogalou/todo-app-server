@@ -8,15 +8,17 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   Req,
   Res,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { ApiBody, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateTaskDto, TaskDto } from './dto/CreateTask.dto';
 import { TaskService } from './task.service';
 import { EditTaskDto } from './dto/EditTask.dto';
 import { TaskResponseDto } from './dto/TaskResponse.dto';
+import { TaskStatusResponseDto } from './dto/TaskStatusResponse.dto';
 
 @ApiTags('tasks')
 @Controller('tasks')
@@ -62,6 +64,8 @@ export class TaskController {
   }
 
   @Patch(':id/edit')
+  @ApiBody({ description: 'Task data', type: EditTaskDto })
+  @ApiResponse({ type: EditTaskDto })
   async editTask(
     @Param('id', ParseIntPipe) taskId: number,
     @Body('taskData') taskData: EditTaskDto,
@@ -95,5 +99,19 @@ export class TaskController {
     name: 'id',
     type: 'string',
   })
-  async changeTaskStatus() {}
+  @ApiQuery({
+    description: 'Task status completed',
+    name: 'completed',
+    type: 'boolean',
+  })
+  @ApiResponse({ type: TaskStatusResponseDto })
+  async changeTaskStatus(
+    @Param('id', ParseIntPipe) taskId: number,
+    @Query('completed') completed: boolean,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const newStatus = await this.taskService.updateTaskStatus(taskId, completed, req);
+    res.status(HttpStatus.OK).send(newStatus);
+  }
 }

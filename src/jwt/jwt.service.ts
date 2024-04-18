@@ -15,7 +15,7 @@ export class JwtService {
         userId: userId,
       },
       this.configService.getOrThrow('JWT_ACCESS_SECRET'),
-      { expiresIn: '10m' },
+      { expiresIn: '60m' },
     );
   }
 
@@ -28,7 +28,7 @@ export class JwtService {
       },
       this.configService.getOrThrow('JWT_REFRESH_SECRET'),
       {
-        expiresIn: '60m',
+        expiresIn: '14d',
       },
     );
   }
@@ -56,6 +56,7 @@ export class JwtService {
   }
 
   decodeToken(request: Request) {
+    console.log(request.headers.authorization);
     const token = request.headers.authorization.split(' ')[1];
     const jwtPayload = decode(token) as JwtPayload;
 

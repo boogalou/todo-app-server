@@ -13,6 +13,7 @@ import { Repository } from 'typeorm';
 import { UserService } from '../user/user.service';
 import { JwtService } from '../jwt/jwt.service';
 import { EditTaskDto } from './dto/EditTask.dto';
+import { TaskStatusResponseDto } from './dto/TaskStatusResponse.dto';
 
 @Injectable()
 export class TaskService {
@@ -38,7 +39,11 @@ export class TaskService {
     newTask.user = user;
 
     try {
-      return await this.tasksRepository.save(newTask);
+      const savedTask = await this.tasksRepository.save(newTask);
+
+      delete savedTask.user;
+      delete savedTask.userId;
+      return savedTask;
     } catch (err) {
       throw new InternalServerErrorException('Database response error');
     }
@@ -114,6 +119,26 @@ export class TaskService {
     Object.assign(task, taskData);
 
     return this.tasksRepository.save(task);
+  }
+
+  async updateTaskStatus(taskId: number, completed: boolean, req: Request) {
+    const payload = this.jwtService.decodeToken(req);
+    const userId = Number(payload.sub);
+
+    if (!userId) {
+      throw new UnauthorizedException();
+    }
+
+    const task = await this.findTaskByUser(taskId, userId);
+
+    task.isCompleted = completed;
+
+    try {
+      const newTask = await this.tasksRepository.save(task);
+      return { completed: newTask.isCompleted } as TaskStatusResponseDto;
+    } catch (err) {
+      throw new InternalServerErrorException('Database response error');
+    }
   }
 
   async findById(taskId: number) {
