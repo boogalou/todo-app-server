@@ -15,6 +15,13 @@ lerna-debug.log*
 # OS
 .DS_Store
 
+#Docker
+#Dockerfile
+#docker-compose.*
+
+# nginx
+#nginx.conf
+
 # Tests
 /coverage
 /.nyc_output
