@@ -1,7 +1,7 @@
 import { IsEmail, IsOptional, IsString, Length, MaxLength, ValidateNested } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class EditProfileDto {
+export class ProfileDto {
   @ApiProperty()
   @IsOptional()
   @IsString()
@@ -17,7 +17,7 @@ export class EditProfileDto {
 }
 
 export class ProfileDataDto {
-  @ApiProperty({ type: () => EditProfileDto })
+  @ApiProperty({ type: () => ProfileDto })
   @ValidateNested({ each: true })
-  profileData: EditProfileDto;
+  profileData: ProfileDto;
 }

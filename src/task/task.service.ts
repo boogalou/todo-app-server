@@ -26,9 +26,9 @@ export class TaskService {
   ) {}
 
   async create(task: TaskDto, req: Request) {
-    const payload = this.jwtService.decodeToken(req);
+    const userId = this.jwtService.getUserIdFromToken(req);
 
-    const user = await this.userService.findById(Number(payload.sub));
+    const user = await this.userService.findById(userId);
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -41,46 +41,38 @@ export class TaskService {
     try {
       const savedTask = await this.tasksRepository.save(newTask);
 
-      delete savedTask.user;
-      delete savedTask.userId;
-      return savedTask;
+      return this.modifyTask(savedTask);
     } catch (err) {
       throw new InternalServerErrorException('Database response error');
     }
   }
 
   async getOne(taskId: number, req: Request) {
-    const payload = this.jwtService.decodeToken(req);
-    const userId = Number(payload.sub);
+    const userId = this.jwtService.getUserIdFromToken(req);
 
-    return await this.findTaskByUser(taskId, userId);
+    const task = await this.findTaskByUser(taskId, userId);
+
+    if (!task) {
+      throw new UnauthorizedException('Resource is not accessible. Unauthorized access');
+    }
+
+    return this.modifyTask(task);
   }
 
   async getAll(userId: number, req: Request) {
-    const payload = this.jwtService.decodeToken(req);
-    const user_Id = Number(payload.sub);
+    const user_Id = this.jwtService.getUserIdFromToken(req);
 
     if (userId !== user_Id) {
       throw new UnauthorizedException();
     }
 
-    const user = await this.userService.findById(userId);
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    return user.tasks;
+    return await this.tasksRepository.find({
+      where: { userId: user_Id },
+    });
   }
 
   async delete(taskId: number, req: Request) {
-    const payload = this.jwtService.decodeToken(req);
-
-    if (!payload) {
-      throw new UnauthorizedException();
-    }
-
-    const userId = Number(payload.sub);
+    const userId = this.jwtService.getUserIdFromToken(req);
     const user = await this.userService.findById(userId);
 
     if (!user) {
@@ -88,15 +80,15 @@ export class TaskService {
     }
 
     const task = await this.tasksRepository.findOne({
-      where: { id: taskId, user },
+      where: { id: taskId, userId: userId },
     });
 
     if (!task) {
-      throw new NotFoundException(`The task with id${taskId} was not found`);
+      throw new NotFoundException(`The task with id:${taskId} was not found`);
     }
 
     try {
-      this.logger.log(`The UserId: ${userId} successful deleted the taskID: ${taskId}`);
+      this.logger.log(`The UserId: ${userId} successful deleted the taskID:${taskId}`);
       return await this.tasksRepository.remove(task);
     } catch (err) {
       this.logger.error(
@@ -107,29 +99,27 @@ export class TaskService {
   }
 
   async update(taskData: EditTaskDto, taskId: number, req: Request) {
-    const payload = this.jwtService.decodeToken(req);
-    const userId = Number(payload.sub);
-
-    if (!userId) {
-      throw new UnauthorizedException();
-    }
+    const userId = this.jwtService.getUserIdFromToken(req);
 
     const task = await this.findTaskByUser(taskId, userId);
+    if (!task) {
+      throw new UnauthorizedException('Resource is not accessible. Unauthorized access');
+    }
 
     Object.assign(task, taskData);
 
-    return this.tasksRepository.save(task);
+    const updatedTask = await this.tasksRepository.save(task);
+    return this.modifyTask(updatedTask);
   }
 
   async updateTaskStatus(taskId: number, completed: boolean, req: Request) {
-    const payload = this.jwtService.decodeToken(req);
-    const userId = Number(payload.sub);
-
-    if (!userId) {
-      throw new UnauthorizedException();
-    }
+    const userId = this.jwtService.getUserIdFromToken(req);
 
     const task = await this.findTaskByUser(taskId, userId);
+
+    if (!task) {
+      throw new UnauthorizedException('Resource is not accessible. Unauthorized access');
+    }
 
     task.isCompleted = completed;
 
@@ -157,5 +147,11 @@ export class TaskService {
     } catch (err) {
       throw new InternalServerErrorException('Database response error');
     }
+  }
+
+  modifyTask(task: TaskEntity) {
+    delete task.userId;
+    delete task.user;
+    return task;
   }
 }

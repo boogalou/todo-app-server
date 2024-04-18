@@ -5,6 +5,7 @@ import {
   Get,
   HttpStatus,
   Param,
+  ParseBoolPipe,
   ParseIntPipe,
   Patch,
   Post,
@@ -48,7 +49,7 @@ export class TaskController {
     res.status(HttpStatus.OK).send(task);
   }
 
-  @Get(':id/tasks')
+  @Get(':id')
   @ApiParam({
     description: 'User ID',
     name: 'id',
@@ -107,7 +108,7 @@ export class TaskController {
   @ApiResponse({ type: TaskStatusResponseDto })
   async changeTaskStatus(
     @Param('id', ParseIntPipe) taskId: number,
-    @Query('completed') completed: boolean,
+    @Query('completed', ParseBoolPipe) completed: boolean,
     @Req() req: Request,
     @Res() res: Response,
   ) {

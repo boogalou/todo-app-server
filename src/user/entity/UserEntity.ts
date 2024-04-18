@@ -33,7 +33,7 @@ export class UserEntity {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @OneToMany(() => TaskEntity, (task) => task.user)
+  @OneToMany(() => TaskEntity, (task) => task.user, { cascade: true })
   tasks: TaskEntity[];
 
   @BeforeInsert()

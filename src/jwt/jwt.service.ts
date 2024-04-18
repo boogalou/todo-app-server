@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { decode, JwtPayload, sign, verify } from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
@@ -56,10 +56,20 @@ export class JwtService {
   }
 
   decodeToken(request: Request) {
-    console.log(request.headers.authorization);
     const token = request.headers.authorization.split(' ')[1];
     const jwtPayload = decode(token) as JwtPayload;
 
     return jwtPayload;
+  }
+
+  getUserIdFromToken(request: Request) {
+    const token = request.headers.authorization.split(' ')[1];
+    const jwtPayload = decode(token) as JwtPayload;
+
+    if (!jwtPayload.sub) {
+      throw new UnauthorizedException('Unauthorized access');
+    }
+
+    return Number(jwtPayload.sub);
   }
 }

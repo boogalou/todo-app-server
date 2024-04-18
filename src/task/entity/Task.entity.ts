@@ -41,7 +41,7 @@ export class TaskEntity {
   @Column({ name: 'is_completed' })
   isCompleted: boolean;
 
-  @ManyToOne(() => UserEntity, (user) => user.tasks)
+  @ManyToOne(() => UserEntity, (user) => user.tasks, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   user: UserEntity;
 }

@@ -1,11 +1,18 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from './entity/UserEntity';
 import { UserDataDto } from '../auth/dto/CreateUser.dto';
 import { AuthResponse } from '../types';
 import { JwtService } from '../jwt/jwt.service';
-import { EditProfileDto } from './dto/EditProfile.dto';
+import { ProfileDto } from './dto/Profile.dto';
+import { Request } from 'express';
 
 @Injectable()
 export class UserService {
@@ -29,7 +36,13 @@ export class UserService {
     return await this.userRepository.save(newUser);
   }
 
-  async update(userId: number, data: EditProfileDto) {
+  async update(userId: number, data: ProfileDto, req: Request) {
+    const user_Id = this.jwtService.getUserIdFromToken(req);
+
+    if (user_Id !== userId) {
+      throw new UnauthorizedException('Resource is not accessible. Unauthorized access');
+    }
+
     const user = await this.findById(userId);
 
     if (!user) {
@@ -39,17 +52,32 @@ export class UserService {
     user.username = data.username;
     user.email = data.email;
 
-    return this.userRepository.save(user);
+    try {
+      const saved = await this.userRepository.save(user);
+      return this.modifyUser(saved);
+    } catch (err) {
+      throw new InternalServerErrorException('Database responded error');
+    }
   }
 
-  async delete(userId: number) {
+  async delete(userId: number, req: Request) {
+    const user_id = this.jwtService.getUserIdFromToken(req);
+
+    if (userId !== user_id) {
+      throw new UnauthorizedException('Resource is not accessible. Unauthorized access');
+    }
+
     const user = await this.findById(userId);
 
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    return await this.userRepository.remove(user);
+    try {
+      return await this.userRepository.remove(user);
+    } catch (err) {
+      throw new InternalServerErrorException(`Database responded error: ${err}`);
+    }
   }
 
   async findByEmail(email: string) {
@@ -74,8 +102,17 @@ export class UserService {
       id: user.id,
       username: user.username,
       email: user.email,
+      userPic: user.userPic,
       accessToken,
       refreshToken,
     };
+  }
+
+  modifyUser(user: UserEntity) {
+    delete user.password;
+    delete user.createdAt;
+    delete user.updatedAt;
+
+    return user;
   }
 }
