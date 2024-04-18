@@ -1,9 +1,9 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -40,7 +40,7 @@ export class UserService {
     const user_Id = this.jwtService.getUserIdFromToken(req);
 
     if (user_Id !== userId) {
-      throw new UnauthorizedException('Resource is not accessible. Unauthorized access');
+      throw new ForbiddenException('Resource is not accessible. Unauthorized access');
     }
 
     const user = await this.findById(userId);
@@ -64,7 +64,7 @@ export class UserService {
     const user_id = this.jwtService.getUserIdFromToken(req);
 
     if (userId !== user_id) {
-      throw new UnauthorizedException('Resource is not accessible. Unauthorized access');
+      throw new ForbiddenException('Resource is not accessible. Unauthorized access');
     }
 
     const user = await this.findById(userId);

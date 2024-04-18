@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -53,7 +54,7 @@ export class TaskService {
     const task = await this.findTaskByUser(taskId, userId);
 
     if (!task) {
-      throw new UnauthorizedException('Resource is not accessible. Unauthorized access');
+      throw new ForbiddenException('Resource is not accessible. Unauthorized access');
     }
 
     return this.modifyTask(task);
@@ -63,7 +64,7 @@ export class TaskService {
     const user_Id = this.jwtService.getUserIdFromToken(req);
 
     if (userId !== user_Id) {
-      throw new UnauthorizedException();
+      throw new ForbiddenException('Resource is not accessible. Unauthorized access');
     }
 
     return await this.tasksRepository.find({
@@ -103,13 +104,17 @@ export class TaskService {
 
     const task = await this.findTaskByUser(taskId, userId);
     if (!task) {
-      throw new UnauthorizedException('Resource is not accessible. Unauthorized access');
+      throw new ForbiddenException('Resource is not accessible. Unauthorized access');
     }
 
     Object.assign(task, taskData);
 
-    const updatedTask = await this.tasksRepository.save(task);
-    return this.modifyTask(updatedTask);
+    try {
+      const updatedTask = await this.tasksRepository.save(task);
+      return this.modifyTask(updatedTask);
+    } catch (err) {
+      throw new InternalServerErrorException('Database responded error');
+    }
   }
 
   async updateTaskStatus(taskId: number, completed: boolean, req: Request) {
@@ -118,7 +123,7 @@ export class TaskService {
     const task = await this.findTaskByUser(taskId, userId);
 
     if (!task) {
-      throw new UnauthorizedException('Resource is not accessible. Unauthorized access');
+      throw new ForbiddenException('Resource is not accessible. Unauthorized access');
     }
 
     task.isCompleted = completed;
