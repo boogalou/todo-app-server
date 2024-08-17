@@ -1,18 +1,22 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { JwtService } from '../jwt/jwt.service';
-import { UserService } from '../user/user.service';
 import { NextFunction } from 'express';
-import { RequestExt } from '../types';
-import { JwtPayload } from 'jsonwebtoken';
+import { LogService } from '../logger/log.service';
+import { UserRepository } from '../user/user.repository';
+import { ExtRequest } from '../shared/types';
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
+  private logger: LogService;
   constructor(
     private readonly jwtService: JwtService,
-    private readonly userService: UserService,
-  ) {}
+    private readonly userRepository: UserRepository,
+    private readonly loggerService: LogService,
+  ) {
+    this.logger = this.loggerService;
+  }
 
-  async use(req: RequestExt, res: Response, next: NextFunction) {
+  async use(req: ExtRequest, res: Response, next: NextFunction) {
     try {
       const authHeaders = req.headers.authorization;
       if (!authHeaders) {
@@ -21,10 +25,12 @@ export class AuthMiddleware implements NestMiddleware {
       }
 
       const token = req.headers.authorization.split(' ')[1];
-      const tokenPayload = this.jwtService.validateAccessToken(token) as JwtPayload;
-      req.user = await this.userService.findById(Number(tokenPayload.sub));
+      const tokenPayload = this.jwtService.validateAccessToken(token);
+      const userId = Number(tokenPayload.sub);
+      req.user = await this.userRepository.findById(Number(userId));
       next();
     } catch (err) {
+      this.logger.error(`AuthMiddleware: Authorized Error: ${err}`);
       req.user = null;
       next();
     }

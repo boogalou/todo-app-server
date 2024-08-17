@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { TaskModule } from './task/task.module';
 import { JwtModule } from './jwt/jwt.module';
 import { AuthMiddleware } from './middleware/Auth.middleware';
+import { LogModule } from './logger/log.module';
 
 @Module({
   imports: [
@@ -16,14 +17,18 @@ import { AuthMiddleware } from './middleware/Auth.middleware';
     AuthModule,
     TaskModule,
     JwtModule,
+    LogModule,
   ],
   providers: [Logger],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes({
-      path: '*',
-      method: RequestMethod.ALL,
-    });
+    consumer
+      .apply(AuthMiddleware)
+      .exclude(
+        { path: 'login', method: RequestMethod.POST },
+        { path: 'registration', method: RequestMethod.POST },
+      )
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
   }
 }

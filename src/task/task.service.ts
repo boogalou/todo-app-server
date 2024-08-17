@@ -1,162 +1,89 @@
 import {
   ForbiddenException,
   Injectable,
-  InternalServerErrorException,
-  Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Request } from 'express';
-import { TaskDto } from './dto/CreateTask.dto';
-import { InjectRepository } from '@nestjs/typeorm';
+import { CreateTaskDto } from './dto/CreateTask.dto';
 import { TaskEntity } from './entity/Task.entity';
-import { Repository } from 'typeorm';
-import { UserService } from '../user/user.service';
-import { JwtService } from '../jwt/jwt.service';
 import { EditTaskDto } from './dto/EditTask.dto';
-import { TaskStatusResponseDto } from './dto/TaskStatusResponse.dto';
+import { ExtRequest } from '../shared/types';
+import { TaskRepository } from './task.repository';
+import { UserRepository } from '../user/user.repository';
 
 @Injectable()
 export class TaskService {
   constructor(
-    @InjectRepository(TaskEntity)
-    private readonly tasksRepository: Repository<TaskEntity>,
-    private readonly userService: UserService,
-    private readonly jwtService: JwtService,
-    private readonly logger: Logger,
+    private readonly tasksRepository: TaskRepository,
+    private readonly userRepository: UserRepository,
   ) {}
 
-  async create(task: TaskDto, req: Request) {
-    const userId = this.jwtService.getUserIdFromToken(req);
+  async createTask(task: CreateTaskDto, req: ExtRequest) {
+    const userId = req.user.id;
 
-    const user = await this.userService.findById(userId);
+    const user = await this.userRepository.findById(userId);
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new UnauthorizedException('Unauthorized');
     }
 
     const newTask = new TaskEntity();
-    Object.assign(newTask, task);
+    newTask.dueDate = new Date(`${task.date}T${task.time}:00Z`).toISOString();
+    const { date, time, ...restFields } = task;
+    Object.assign(newTask, restFields);
     newTask.user = user;
 
-    try {
-      const savedTask = await this.tasksRepository.save(newTask);
-
-      return this.modifyTask(savedTask);
-    } catch (err) {
-      throw new InternalServerErrorException('Database response error');
-    }
+    const savedTask = await this.tasksRepository.save(newTask);
+    delete savedTask.user;
+    delete savedTask.createdAt;
+    delete savedTask.updatedAt;
+    return savedTask;
   }
 
-  async getOne(taskId: number, req: Request) {
-    const userId = this.jwtService.getUserIdFromToken(req);
+  async getTasks(req: ExtRequest) {
+    const userId = req.user.id;
 
-    const task = await this.findTaskByUser(taskId, userId);
-
-    if (!task) {
+    if (!userId) {
       throw new ForbiddenException('Resource is not accessible. Unauthorized access');
     }
 
-    return this.modifyTask(task);
+    return await this.tasksRepository.findAll(userId);
   }
 
-  async getAll(userId: number, req: Request) {
-    const user_Id = this.jwtService.getUserIdFromToken(req);
+  async deleteTask(taskId: number, req: ExtRequest) {
+    const userId = req.user.id;
 
-    if (userId !== user_Id) {
-      throw new ForbiddenException('Resource is not accessible. Unauthorized access');
-    }
-
-    return await this.tasksRepository.find({
-      where: { userId: user_Id },
-    });
-  }
-
-  async delete(taskId: number, req: Request) {
-    const userId = this.jwtService.getUserIdFromToken(req);
-    const user = await this.userService.findById(userId);
-
-    if (!user) {
+    if (!userId) {
       throw new UnauthorizedException();
     }
 
-    const task = await this.tasksRepository.findOne({
-      where: { id: taskId, userId: userId },
-    });
+    const task = await this.tasksRepository.findById(taskId);
 
     if (!task) {
       throw new NotFoundException(`The task with id:${taskId} was not found`);
     }
 
-    try {
-      this.logger.log(`The UserId: ${userId} successful deleted the taskID:${taskId}`);
-      return await this.tasksRepository.remove(task);
-    } catch (err) {
-      this.logger.error(
-        `Delete task is failed. Database response error. Request \`from\` userID${user} for deleted task${taskId}`,
-      );
-      throw new InternalServerErrorException('Delete task is failed. Database response error');
+    if (task.user.id !== userId) {
+      throw new UnauthorizedException('You do not have permission to delete this task');
     }
+
+    return await this.tasksRepository.remove(task);
   }
 
-  async update(taskData: EditTaskDto, taskId: number, req: Request) {
-    const userId = this.jwtService.getUserIdFromToken(req);
+  async updateTask(taskData: EditTaskDto, taskId: number, req: ExtRequest) {
+    const userId = req.user.id;
 
-    const task = await this.findTaskByUser(taskId, userId);
-    if (!task) {
-      throw new ForbiddenException('Resource is not accessible. Unauthorized access');
+    if (!userId) {
+      throw new UnauthorizedException();
     }
 
-    Object.assign(task, taskData);
-
-    try {
-      const updatedTask = await this.tasksRepository.save(task);
-      return this.modifyTask(updatedTask);
-    } catch (err) {
-      throw new InternalServerErrorException('Database responded error');
-    }
-  }
-
-  async updateTaskStatus(taskId: number, completed: boolean, req: Request) {
-    const userId = this.jwtService.getUserIdFromToken(req);
-
-    const task = await this.findTaskByUser(taskId, userId);
-
-    if (!task) {
-      throw new ForbiddenException('Resource is not accessible. Unauthorized access');
+    if (taskData.id !== taskId) {
+      throw new UnauthorizedException('You do not have permission to edit this task');
     }
 
-    task.isCompleted = completed;
-
-    try {
-      const newTask = await this.tasksRepository.save(task);
-      return { completed: newTask.isCompleted } as TaskStatusResponseDto;
-    } catch (err) {
-      throw new InternalServerErrorException('Database response error');
-    }
-  }
-
-  async findById(taskId: number) {
-    try {
-      return await this.tasksRepository.findOne({ where: { id: taskId } });
-    } catch (err) {
-      throw new InternalServerErrorException('Database response error');
-    }
-  }
-
-  async findTaskByUser(taskId: number, userId: number) {
-    try {
-      return await this.tasksRepository.findOne({
-        where: { id: taskId, userId: userId },
-      });
-    } catch (err) {
-      throw new InternalServerErrorException('Database response error');
-    }
-  }
-
-  modifyTask(task: TaskEntity) {
-    delete task.userId;
-    delete task.user;
-    return task;
+    await this.tasksRepository.update(taskData.id, taskData);
+    const updateTask = await this.tasksRepository.findById(taskData.id);
+    delete updateTask.user;
+    return updateTask;
   }
 }

@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Get,
   HttpStatus,
   Post,
   Req,
@@ -27,7 +26,7 @@ export class AuthController {
     private readonly userService: UserService,
   ) {}
 
-  @Post('signup')
+  @Post('registration')
   @UsePipes(new ValidationPipe())
   @ApiBody({
     type: CreateUserDto,
@@ -66,14 +65,14 @@ export class AuthController {
     res.status(HttpStatus.OK).send(authResponse);
   }
 
-  @Get('logout')
+  @Post('logout')
   async logout(@Req() req: Request, @Res() res: Response) {
     res.clearCookie('refreshToken');
     res.setHeader('Authorization', '');
     res.status(HttpStatus.OK).send({});
   }
 
-  @Get('refresh')
+  @Post('refresh')
   @ApiResponse({ type: AuthResponseDto })
   async refreshAccessToken(@Cookies('refreshToken') token: string, @Res() res: Response) {
     const user = await this.authService.refresh(token);

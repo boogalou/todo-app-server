@@ -35,17 +35,21 @@
     "@nestjs/typeorm": "^10.0.2",
     "axios": "^1.6.8",
     "bcrypt": "^5.1.1",
+    "chalk": "4.1.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.4.5",
     "form-data": "^4.0.0",
     "jsonwebtoken": "^9.0.2",
+    "nest-winston": "^1.10.0",
     "pg": "^8.11.5",
     "reflect-metadata": "^0.2.0",
     "rimraf": "^5.0.5",
     "rxjs": "^7.8.1",
-    "typeorm": "^0.3.20"
+    "typeorm": "^0.3.20",
+    "winston": "^3.13.0",
+    "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
@@ -91,5 +95,6 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  }
+  },
+  "packageManager": "pnpm@9.1.2+sha512.127dc83b9ea10c32be65d22a8efb4a65fb952e8fefbdfded39bdc3c97efc32d31b48b00420df2c1187ace28c921c902f0cb5a134a4d032b8b5295cbfa2c681e2"
 }

@@ -11,17 +11,18 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { ApiBody, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ProfileDataDto, ProfileDto } from './dto/Profile.dto';
 import { UserService } from './user.service';
+import { ExtRequest } from '../shared/types';
 
 @ApiTags('users')
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Patch('/:id/edit')
+  @Patch()
   @UsePipes(new ValidationPipe())
   @ApiParam({
     description: 'User ID',
@@ -35,29 +36,29 @@ export class UserController {
   @ApiResponse({
     type: ProfileDto,
   })
-  async editUser(
+  async edit(
     @Param('id', ParseIntPipe) userId: number,
     @Body('profileData') profileData: ProfileDto,
-    @Req() req: Request,
+    @Req() req: ExtRequest,
     @Res() res: Response,
   ) {
-    const editedUser = await this.userService.update(userId, profileData, req);
+    const editedUser = await this.userService.update(profileData, req);
     res.status(HttpStatus.OK).send(editedUser);
   }
 
-  @Delete('/:id/delete')
+  @Delete('/:id')
   @ApiParam({
     description: 'User ID',
     name: 'id',
-    type: 'string',
+    type: Number,
   })
   async deleteAccount(
     @Param('id', ParseIntPipe) userId: number,
+    @Req() req: ExtRequest,
     @Res() res: Response,
-    @Req() req: Request,
   ) {
     await this.userService.delete(userId, req);
-    res.status(HttpStatus.NO_CONTENT).send('Account was successfully deleted');
+    res.status(HttpStatus.NO_CONTENT);
   }
 
   @Patch('/:id/avatar')

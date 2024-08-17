@@ -11,7 +11,7 @@ export class TaskResponseDto {
   description: string;
 
   @ApiProperty()
-  label: string;
+  color: string;
 
   @ApiProperty()
   category: string;

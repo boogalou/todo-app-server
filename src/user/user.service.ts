@@ -5,25 +5,22 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { UserEntity } from './entity/UserEntity';
+import { UserEntity } from './entity/User.entity';
 import { UserDataDto } from '../auth/dto/CreateUser.dto';
-import { AuthResponse } from '../types';
+import { AuthResponse, ExtRequest } from '../shared/types';
 import { JwtService } from '../jwt/jwt.service';
 import { ProfileDto } from './dto/Profile.dto';
-import { Request } from 'express';
+import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
+    private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
   ) {}
 
   async create(user: UserDataDto) {
-    const existingUser = await this.findByEmail(user.email);
+    const existingUser = await this.userRepository.findByEmail(user.email);
 
     if (existingUser) {
       throw new ConflictException({
@@ -36,14 +33,10 @@ export class UserService {
     return await this.userRepository.save(newUser);
   }
 
-  async update(userId: number, data: ProfileDto, req: Request) {
-    const user_Id = this.jwtService.getUserIdFromToken(req);
+  async update(data: ProfileDto, req: ExtRequest) {
+    const userId = req.user.id;
 
-    if (user_Id !== userId) {
-      throw new ForbiddenException('Resource is not accessible. Unauthorized access');
-    }
-
-    const user = await this.findById(userId);
+    const user = await this.userRepository.findById(userId);
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -60,14 +53,14 @@ export class UserService {
     }
   }
 
-  async delete(userId: number, req: Request) {
-    const user_id = this.jwtService.getUserIdFromToken(req);
+  async delete(userId: number, req: ExtRequest) {
+    const user_id = req.user.id;
 
     if (userId !== user_id) {
       throw new ForbiddenException('Resource is not accessible. Unauthorized access');
     }
 
-    const user = await this.findById(userId);
+    const user = await this.userRepository.findById(userId);
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -78,14 +71,6 @@ export class UserService {
     } catch (err) {
       throw new InternalServerErrorException(`Database responded error: ${err}`);
     }
-  }
-
-  async findByEmail(email: string) {
-    return await this.userRepository.findOne({ where: { email: email } });
-  }
-
-  async findById(userId: number) {
-    return this.userRepository.findOne({ where: { id: userId } });
   }
 
   userBuilder(user: UserEntity): Promise<AuthResponse>;

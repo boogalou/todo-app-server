@@ -7,15 +7,12 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { UserEntity } from '../../user/entity/UserEntity';
+import { UserEntity } from '../../user/entity/User.entity';
 
 @Entity({ name: 'tasks' })
 export class TaskEntity {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @Column({ name: 'user_id' })
-  userId: number;
 
   @Column()
   title: string;
@@ -24,13 +21,13 @@ export class TaskEntity {
   description: string;
 
   @Column()
-  label: string;
+  color: string;
 
   @Column()
   category: string;
 
   @Column({ name: 'due_date' })
-  dueDate: Date;
+  dueDate: string;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

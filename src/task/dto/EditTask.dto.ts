@@ -1,25 +1,50 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class EditTaskDto {
   @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
+  readonly id: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   @MaxLength(255)
-  readonly title: string;
+  readonly title?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
-  readonly description: string;
+  @MaxLength(255)
+  readonly description?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
-  readonly label: string;
+  readonly color?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
-  readonly category: string;
+  @MaxLength(100)
+  readonly category?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsNotEmpty()
-  readonly dueDate: Date;
+  @IsString()
+  readonly date?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNotEmpty()
+  @IsString()
+  readonly time?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNotEmpty()
+  @IsBoolean()
+  readonly isCompleted?: boolean;
 }

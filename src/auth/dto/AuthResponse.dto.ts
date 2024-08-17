@@ -1,5 +1,5 @@
-import { AuthResponse } from '../../types';
 import { ApiProperty } from '@nestjs/swagger';
+import { AuthResponse } from '../../shared/types';
 
 export class AuthResponseDto implements AuthResponse {
   @ApiProperty()
