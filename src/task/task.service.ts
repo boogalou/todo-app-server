@@ -28,14 +28,11 @@ export class TaskService {
     }
 
     const newTask = new TaskEntity();
-    newTask.dueDate = new Date(`${task.date}T${task.time}:00Z`).toISOString();
-    const { date, time, ...restFields } = task;
-    Object.assign(newTask, restFields);
+    Object.assign(newTask, task);
     newTask.user = user;
 
     const savedTask = await this.tasksRepository.save(newTask);
     delete savedTask.user;
-    delete savedTask.createdAt;
     delete savedTask.updatedAt;
     return savedTask;
   }
@@ -47,9 +44,9 @@ export class TaskService {
       throw new ForbiddenException('Resource is not accessible. Unauthorized access');
     }
 
+    console.log('get tasks: ', userId);
     return await this.tasksRepository.findAll(userId);
   }
-
   async deleteTask(taskId: number, req: ExtRequest) {
     const userId = req.user.id;
 
@@ -78,12 +75,12 @@ export class TaskService {
     }
 
     if (taskData.id !== taskId) {
-      throw new UnauthorizedException('You do not have permission to edit this task');
+      throw new ForbiddenException('You do not have permission to edit this task');
     }
 
     await this.tasksRepository.update(taskData.id, taskData);
-    const updateTask = await this.tasksRepository.findById(taskData.id);
-    delete updateTask.user;
-    return updateTask;
+    const updatedTask = await this.tasksRepository.findById(taskData.id);
+    delete updatedTask.user;
+    return updatedTask;
   }
 }

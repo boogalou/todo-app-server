@@ -25,21 +25,10 @@ export class CreateTaskDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  readonly date: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  readonly time: string;
+  readonly dueDate: string;
 
   @ApiProperty()
   @IsNotEmpty()
   @IsBoolean()
   readonly isCompleted: boolean;
 }
-
-// export class CreateTaskDto {
-//   @ApiProperty({ type: () => TaskDto })
-//   @ValidateNested({ each: true })
-//   task: () => TaskDto;
-// }

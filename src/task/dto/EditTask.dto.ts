@@ -34,13 +34,7 @@ export class EditTaskDto {
   @IsOptional()
   @IsNotEmpty()
   @IsString()
-  readonly date?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsNotEmpty()
-  @IsString()
-  readonly time?: string;
+  readonly dueDate?: string;
 
   @ApiPropertyOptional()
   @IsOptional()

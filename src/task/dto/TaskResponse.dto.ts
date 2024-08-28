@@ -17,7 +17,10 @@ export class TaskResponseDto {
   category: string;
 
   @ApiProperty()
-  dueDate: Date;
+  dueDate: string;
+
+  @ApiProperty()
+  createdAt: string;
 
   @ApiProperty()
   isCompleted: boolean;

@@ -39,7 +39,16 @@ export class TaskRepository {
   async findById(taskId: number) {
     return await this.repository.findOne({
       where: { id: taskId },
-      select: ['id', 'title', 'description', 'color', 'category', 'dueDate', 'isCompleted'],
+      select: [
+        'id',
+        'title',
+        'description',
+        'color',
+        'category',
+        'dueDate',
+        'createdAt',
+        'isCompleted',
+      ],
       relations: ['user'],
     });
   }
@@ -56,9 +65,11 @@ export class TaskRepository {
           'task.color',
           'task.category',
           'task.dueDate',
+          'task.createdAt',
           'task.isCompleted',
         ])
         .where('task.user.id = :userId', { userId })
+        .orderBy('task.createdAt', 'ASC')
         .getMany();
     } catch (err) {
       throw new InternalServerErrorException(
