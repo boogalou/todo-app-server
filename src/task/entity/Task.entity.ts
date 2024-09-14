@@ -26,13 +26,13 @@ export class TaskEntity {
   @Column()
   category: string;
 
-  @Column({ name: 'due_date' })
-  dueDate: string;
+  @Column({ name: 'due_date', type: 'timestamp' })
+  dueDate: Date;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp with time zone' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' })
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp with time zone' })
   updatedAt: Date;
 
   @Column({ name: 'is_completed' })

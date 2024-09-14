@@ -47,6 +47,7 @@ export class TaskRepository {
         'category',
         'dueDate',
         'createdAt',
+        'updatedAt',
         'isCompleted',
       ],
       relations: ['user'],
@@ -66,6 +67,7 @@ export class TaskRepository {
           'task.category',
           'task.dueDate',
           'task.createdAt',
+          'task.updatedAt',
           'task.isCompleted',
         ])
         .where('task.user.id = :userId', { userId })

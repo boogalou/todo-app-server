@@ -23,5 +23,8 @@ export class TaskResponseDto {
   createdAt: string;
 
   @ApiProperty()
+  updatedAt: string;
+
+  @ApiProperty()
   isCompleted: boolean;
 }
