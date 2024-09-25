@@ -1,27 +1,20 @@
-FROM node:lts-alpine3.19 AS base
-
-FROM base AS deps
-
-RUN corepack enable
+FROM node:lts-alpine3.20 AS deps
 WORKDIR /app
-COPY package.json pnpm-lock.yaml ./
-RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm fetch --frozen-lockfile
-RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile --prod
+COPY package.json ./
+RUN npm ci
 
-FROM base AS build
-
-RUN corepack enable
+FROM node:lts-alpine3.20 AS builder
 WORKDIR /app
-COPY package.json pnpm-lock.yaml ./
-RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm fetch --frozen-lockfile
-RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN pnpm build
-
-FROM base
-
-WORKDIR /app
-COPY --from=deps /app/node_modules /app/node_modules
-COPY --from=build /app/dist /app/dist
+RUN npm run build
 ENV NODE_ENV production
+RUN npm ci --only=production && npm cache clean --force
+
+FROM node:lts-alpine3.20 AS runner
+WORKDIR /app
+COPY --from=builder --chown=node:node /app/dist ./dist
+COPY --from=builder --chown=node:node /app/node_modules ./node_modules
+USER node
+
 CMD ["node", "dist/main.js"]

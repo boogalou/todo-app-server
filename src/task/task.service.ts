@@ -69,7 +69,6 @@ export class TaskService {
   }
 
   async updateTask(taskData: EditTaskDto, taskId: number, req: ExtRequest) {
-    console.log('server time: ', new Date().toLocaleString());
     const userId = req.user.id;
 
     if (!userId) {
@@ -83,7 +82,6 @@ export class TaskService {
     await this.tasksRepository.update(taskData.id, taskData);
     const updatedTask = await this.tasksRepository.findById(taskData.id);
     delete updatedTask.user;
-    console.log('updatedTask: ', updatedTask.updatedAt);
     return updatedTask;
   }
 }
