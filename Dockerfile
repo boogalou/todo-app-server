@@ -9,7 +9,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 ENV NODE_ENV production
-RUN npm ci --only=production && npm cache clean --force
+RUN npm ci --only=production
 
 FROM node:lts-alpine3.20 AS runner
 WORKDIR /app
