@@ -1,7 +1,7 @@
 FROM node:lts-alpine3.20 AS deps
 WORKDIR /app
 COPY package.json ./
-RUN npm ci
+RUN npm install
 
 FROM node:lts-alpine3.20 AS builder
 WORKDIR /app
@@ -9,7 +9,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 ENV NODE_ENV production
-RUN npm ci --only=production
+RUN npm install --only=production
 
 FROM node:lts-alpine3.20 AS runner
 WORKDIR /app
