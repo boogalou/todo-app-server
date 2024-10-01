@@ -1,6 +1,5 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { corsConfig } from './config/cors.config';
 import cookieParser from 'cookie-parser';
 import { SwaggerModule } from '@nestjs/swagger';
 import { swaggerConfig } from './config/swagger.config';
@@ -10,7 +9,6 @@ import { LogService } from './logger/log.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors(corsConfig);
   app.use(cookieParser());
   const logger = app.get(LogService);
   app.useGlobalFilters(new HttpExceptionFilter(logger));

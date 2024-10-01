@@ -2,7 +2,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TaskEntity } from './entity/Task.entity';
 import { Repository } from 'typeorm';
-import appDataSource from '../config/typeorm.config';
+import appDataSource from '../config/appDataSource.config';
 import { EditTaskDto } from './dto/EditTask.dto';
 
 @Injectable()

@@ -1,6 +1,6 @@
-version: "3"
+version: "3.9"
 services:
-  server:
+  taskflow-api:
     build:
       context: ./
       dockerfile: Dockerfile
@@ -13,29 +13,33 @@ services:
     environment:
       - NODE_ENV=production
     depends_on:
-      - postgres
+      - taskflow-db
     networks:
-      - common-network
+      - taskflow-network
       - backend
 
-  postgres:
+  taskflow-db:
     image: postgres:16-alpine3.20
-    container_name: postgres-db
-    env_file:
-      - .env
+    container_name: taskflow-db
+    ports:
+      - "5432:5432"
+    restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DATABASE: ${POSTGRES_DATABASE}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
-      - common-network
+      - taskflow-network
       - backend
 
 volumes:
   postgres_data:
 
 networks:
-  common-network:
+  taskflow-network:
+    external: true
   backend:
+
