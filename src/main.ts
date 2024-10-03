@@ -6,9 +6,11 @@ import { swaggerConfig } from './config/swagger.config';
 import { HttpExceptionFilter } from './middleware/HttpExeptionFilter.middleware';
 import { ValidationPipe } from '@nestjs/common';
 import { LogService } from './logger/log.service';
+import { corsConfig } from './config/cors.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors(corsConfig);
   app.use(cookieParser());
   const logger = app.get(LogService);
   app.useGlobalFilters(new HttpExceptionFilter(logger));

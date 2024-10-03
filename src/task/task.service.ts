@@ -33,7 +33,6 @@ export class TaskService {
 
     const savedTask = await this.tasksRepository.save(newTask);
     delete savedTask.user;
-    delete savedTask.updatedAt;
     return savedTask;
   }
 
