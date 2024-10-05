@@ -8,6 +8,7 @@ import { TaskModule } from './task/task.module';
 import { JwtModule } from './jwt/jwt.module';
 import { AuthMiddleware } from './middleware/Auth.middleware';
 import { LogModule } from './logger/log.module';
+import { UserSettingsModule } from './user-settings/user-settings.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { LogModule } from './logger/log.module';
     TaskModule,
     JwtModule,
     LogModule,
+    UserSettingsModule,
   ],
   providers: [Logger],
 })

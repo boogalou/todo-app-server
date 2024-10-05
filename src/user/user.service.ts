@@ -11,12 +11,14 @@ import { AuthResponse, ExtRequest } from '../shared/types';
 import { JwtService } from '../jwt/jwt.service';
 import { ProfileDto } from './dto/Profile.dto';
 import { UserRepository } from './user.repository';
+import { UserSettingsService } from '../user-settings/user-settings.service';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
+    private readonly userSettingsService: UserSettingsService,
   ) {}
 
   async create(user: UserDataDto) {
@@ -30,7 +32,11 @@ export class UserService {
 
     const newUser = new UserEntity();
     Object.assign(newUser, user);
-    return await this.userRepository.save(newUser);
+
+    const savedUser = await this.userRepository.save(newUser);
+    await this.userSettingsService.initializeDefaultSettings(savedUser);
+
+    return savedUser;
   }
 
   async update(data: ProfileDto, req: ExtRequest) {

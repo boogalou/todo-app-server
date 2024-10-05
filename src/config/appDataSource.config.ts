@@ -4,6 +4,8 @@ import { ConfigService } from '@nestjs/config';
 import { UserEntity } from '../user/entity/User.entity';
 import { TaskEntity } from '../task/entity/Task.entity';
 import { Migrations1726421954654 } from '../migrations/1627807023150-migrations';
+import { UserSettingsEntity } from '../user-settings/entity/user-settings.entity';
+import { Migrations1728026660060 } from '../migrations/1728026660060-migrations';
 
 config();
 
@@ -18,8 +20,8 @@ const appDataSource = new DataSource({
   database: configService.getOrThrow('DB_NAME'),
   schema: configService.getOrThrow('DB_SCHEMA'),
   synchronize: false,
-  entities: [UserEntity, TaskEntity],
-  migrations: [Migrations1726421954654],
+  entities: [UserEntity, TaskEntity, UserSettingsEntity],
+  migrations: [Migrations1726421954654, Migrations1728026660060],
 });
 
 appDataSource

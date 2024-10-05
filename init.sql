@@ -31,9 +31,20 @@ CREATE TABLE taskflow_schema.tasks (
                                        CONSTRAINT FK_db55af84c226af9dce09487b61b FOREIGN KEY (user_id) REFERENCES taskflow_schema.users (id) ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
--- Команды для удаления таблиц и схемы (в обратном порядке) для очистки при необходимости
--- Включите их только для тестирования или инициализации
--- DROP TABLE IF EXISTS taskflow_schema.tasks;
--- DROP TABLE IF EXISTS taskflow_schema.users;
--- DROP SCHEMA IF EXISTS taskflow_schema CASCADE;
--- DROP DATABASE IF EXISTS taskflow_db;
+CREATE TABLE taskflow_schema.settigs (
+
+                                         id         SERIAL                   NOT NULL,
+                                         language   VARCHAR                  NOT NULL,
+                                         theme      VARCHAR                  NOT NULL,
+                                         created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+                                         updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+                                         user_id    INTEGER,
+                                         CONSTRAINT REL_a2883eaa72b3b2e8c98e744609 UNIQUE (user_id),
+                                         CONSTRAINT PK_0669fe20e252eb692bf4d344975 PRIMARY KEY (id)
+);
+
+ALTER TABLE taskflow_schema.settings
+    ADD CONSTRAINT FK_a2883eaa72b3b2e8c98e7446098 FOREIGN KEY (user_id)
+        REFERENCES taskflow_schema.users (id)
+        ON DELETE CASCADE ON UPDATE NO ACTION;
+

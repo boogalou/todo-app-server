@@ -5,6 +5,7 @@ import {
   Post,
   Req,
   Res,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -17,6 +18,7 @@ import { Cookies } from '../middleware/Cookies.middleware';
 import { AuthResponseDto } from './dto/AuthResponse.dto';
 import { CreateUserDto, UserDataDto } from './dto/CreateUser.dto';
 import { LoginDataDto, LoginUserDto } from './dto/Login.dto';
+import { AuthGuard } from '../guard/AuthGuard';
 
 @ApiTags('auth')
 @Controller()
@@ -66,6 +68,7 @@ export class AuthController {
   }
 
   @Post('logout')
+  @UseGuards(AuthGuard)
   async logout(@Req() req: Request, @Res() res: Response) {
     res.clearCookie('refreshToken');
     res.setHeader('Authorization', '');
@@ -73,6 +76,7 @@ export class AuthController {
   }
 
   @Post('refresh')
+  @UseGuards(AuthGuard)
   @ApiResponse({ type: AuthResponseDto })
   async refreshAccessToken(@Cookies('refreshToken') token: string, @Res() res: Response) {
     const user = await this.authService.refresh(token);
