@@ -31,7 +31,7 @@ CREATE TABLE taskflow_schema.tasks (
                                        CONSTRAINT FK_db55af84c226af9dce09487b61b FOREIGN KEY (user_id) REFERENCES taskflow_schema.users (id) ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
-CREATE TABLE taskflow_schema.settigs (
+CREATE TABLE taskflow_schema.settings (
 
                                          id         SERIAL                   NOT NULL,
                                          language   VARCHAR                  NOT NULL,
