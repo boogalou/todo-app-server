@@ -8,7 +8,16 @@ import { ExtRequest } from '../shared/types';
 export class UserSettingsService {
   constructor(private readonly userSettingsRepository: UserSettingsRepository) {}
 
-  async getById(id: number) {}
+  async getById(userId: number, req: ExtRequest) {
+    const ownerId = req.user.id;
+
+    if (userId !== ownerId) {
+      throw new ForbiddenException(
+        `Access denied. You don't have enough permissions to get these settings.`,
+      );
+    }
+    return await this.userSettingsRepository.findByUserId(userId);
+  }
 
   async update(userId: number, settingsDto: UserSettingsDto, req: ExtRequest) {
     const isOwner = this.isOwner(userId, req.user.id);

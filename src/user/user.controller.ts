@@ -80,8 +80,14 @@ export class UserController {
   async setAvatar() {}
 
   @Get('/:id/settings')
-  async getSettingsByUserId(@Param('id', ParseIntPipe) userId: number) {
-    return await this.userSettingsService.getById(userId);
+  async getSettingsByUserId(
+    @Param('id', ParseIntPipe) userId: number,
+    @Req() req: ExtRequest,
+    @Res() res: Response,
+  ) {
+    const settings = await this.userSettingsService.getById(userId, req);
+    console.log(settings);
+    res.status(HttpStatus.OK).send(settings);
   }
 
   @ApiParam({
