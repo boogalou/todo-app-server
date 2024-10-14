@@ -2,6 +2,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './entity/User.entity';
 import { Repository } from 'typeorm';
+import { RegistrationDto } from '../auth/dto/Registration.dto';
 
 @Injectable()
 export class UserRepository {
@@ -42,5 +43,9 @@ export class UserRepository {
     } catch (err) {
       throw new InternalServerErrorException(`Failed to save user. Database error: ${err}`);
     }
+  }
+
+  createEntity(registrationDto: RegistrationDto) {
+    return this.repository.create(registrationDto);
   }
 }

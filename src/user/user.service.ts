@@ -6,8 +6,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { UserEntity } from './entity/User.entity';
-import { UserDataDto } from '../auth/dto/CreateUser.dto';
-import { AuthResponse, ExtRequest } from '../shared/types';
+import { RegistrationDto } from '../auth/dto/Registration.dto';
+import { ExtRequest } from '../shared/types';
 import { JwtService } from '../jwt/jwt.service';
 import { ProfileDto } from './dto/Profile.dto';
 import { UserRepository } from './user.repository';
@@ -21,8 +21,8 @@ export class UserService {
     private readonly userSettingsService: UserSettingsService,
   ) {}
 
-  async create(user: UserDataDto) {
-    const existingUser = await this.userRepository.findByEmail(user.email);
+  async create(registrationDto: RegistrationDto) {
+    const existingUser = await this.userRepository.findByEmail(registrationDto.email);
 
     if (existingUser) {
       throw new ConflictException({
@@ -30,9 +30,7 @@ export class UserService {
       });
     }
 
-    const newUser = new UserEntity();
-    Object.assign(newUser, user);
-
+    const newUser = this.userRepository.createEntity(registrationDto);
     const savedUser = await this.userRepository.save(newUser);
     await this.userSettingsService.initializeDefaultSettings(savedUser);
 
@@ -52,8 +50,7 @@ export class UserService {
     user.email = data.email;
 
     try {
-      const saved = await this.userRepository.save(user);
-      return this.modifyUser(saved);
+      return await this.userRepository.save(user);
     } catch (err) {
       throw new InternalServerErrorException('Database responded error');
     }
@@ -79,15 +76,9 @@ export class UserService {
     }
   }
 
-  userBuilder(user: UserEntity): Promise<AuthResponse>;
-  userBuilder(user: UserEntity, generateRefreshToken: boolean): Promise<AuthResponse>;
-  async userBuilder(user: UserEntity, generateRefreshToken: boolean = false) {
+  userBuilder(user: UserEntity) {
     const accessToken = this.jwtService.generateToken(user.id, user.email, 'accessToken');
-    let refreshToken: string;
-
-    if (generateRefreshToken) {
-      refreshToken = this.jwtService.generateToken(user.id, user.email, 'refreshToken');
-    }
+    const refreshToken = this.jwtService.generateToken(user.id, user.email, 'refreshToken');
 
     return {
       id: user.id,
@@ -97,13 +88,5 @@ export class UserService {
       accessToken,
       refreshToken,
     };
-  }
-
-  modifyUser(user: UserEntity) {
-    delete user.password;
-    delete user.createdAt;
-    delete user.updatedAt;
-
-    return user;
   }
 }

@@ -4,17 +4,28 @@ import { TaskEntity } from './entity/Task.entity';
 import { TaskRepository } from './task.repository';
 import { UpdateTaskParams } from './types/taskService.types';
 import { TaskResponseDto } from './dto/TaskResponse.dto';
+import { UserRepository } from '../user/user.repository';
 
 @Injectable()
 export class TaskService {
-  constructor(private readonly tasksRepository: TaskRepository) {}
+  constructor(
+    private readonly tasksRepository: TaskRepository,
+    private readonly userRepository: UserRepository,
+  ) {}
 
   async create(taskDto: TaskDto, userId: number, ownerId: number) {
     if (userId !== ownerId) {
       throw new ForbiddenException('Access denied. You do not have enough permissions.');
     }
 
+    const user = await this.userRepository.findById(userId);
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} was not found.`);
+    }
+
     const newTask = this.tasksRepository.createEntity(taskDto);
+    newTask.user = user;
     const savedTask = await this.tasksRepository.save(newTask);
 
     return this.toDto(savedTask);

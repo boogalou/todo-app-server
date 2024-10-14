@@ -1,16 +1,7 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { AuthResponse } from '../../shared/types';
-
-export class AuthResponseDto implements AuthResponse {
-  @ApiProperty()
-  id: number;
-
-  @ApiProperty()
-  email: string;
-
-  @ApiProperty()
-  username: string;
-
-  @ApiProperty()
-  accessToken: string;
+export class AuthResponseDto {
+  readonly id: number;
+  readonly email: string;
+  readonly username: string;
+  readonly userPic: string | null;
+  readonly accessToken: string;
 }

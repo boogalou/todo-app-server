@@ -9,16 +9,16 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
-import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
-
+import { Response } from 'express';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { UserService } from '../user/user.service';
 import { Cookies } from '../middleware/Cookies.middleware';
-import { AuthResponseDto } from './dto/AuthResponse.dto';
-import { CreateUserDto, UserDataDto } from './dto/CreateUser.dto';
-import { LoginDataDto, LoginUserDto } from './dto/Login.dto';
+import { LoginDto } from './dto/Login.dto';
 import { AuthGuard } from '../guard/AuthGuard';
+import { RegistrationDto } from './dto/Registration.dto';
+import { ApiDocs } from '../shared/api-docs';
+import { loginDocs, logoutDocs, refreshTokensDocs, registrationDocs } from './docs/swagger-docs';
 
 @ApiTags('auth')
 @Controller()
@@ -29,57 +29,43 @@ export class AuthController {
   ) {}
 
   @Post('registration')
+  @ApiDocs(registrationDocs)
   @UsePipes(new ValidationPipe())
-  @ApiBody({
-    type: CreateUserDto,
-    description: 'Registration of a new user',
-  })
-  @ApiResponse({
-    type: AuthResponseDto,
-    description: 'Successful user creation',
-  })
-  async register(@Body('user') createUserDto: UserDataDto, @Res() res: Response) {
-    const generateRefreshToken = true;
-    const user = await this.userService.create(createUserDto);
-    const authResponse = await this.userService.userBuilder(user, generateRefreshToken);
-    this.setCookies(res, authResponse.refreshToken);
-    delete authResponse.refreshToken;
-    res.status(HttpStatus.CREATED).send(authResponse);
+  async register(@Body() registrationDto: RegistrationDto, @Res() res: Response) {
+    await this.userService.create(registrationDto);
+    res.status(HttpStatus.CREATED).send();
   }
 
   @Post('login')
+  @ApiDocs(loginDocs)
   @UsePipes(new ValidationPipe())
-  @ApiBody({
-    description: 'Registration of a new user',
-    type: LoginUserDto,
-  })
-  @ApiResponse({
-    type: AuthResponseDto,
-    description: 'Successful user creation',
-  })
-  async login(@Body('user') loginUserDto: LoginDataDto, @Res() res: Response) {
-    const generateRefreshToken = true;
-    const user = await this.authService.login(loginUserDto);
-    const authResponse = await this.userService.userBuilder(user, generateRefreshToken);
+  async login(@Body() loginDto: LoginDto, @Res() res: Response) {
+    const user = await this.authService.login(loginDto);
+    const authResponse = this.userService.userBuilder(user);
+    this.setCookies(res, authResponse.refreshToken);
+    delete authResponse.refreshToken;
+    res.status(HttpStatus.OK).send(authResponse);
+  }
+
+  @Post('refresh')
+  @ApiBearerAuth()
+  @ApiDocs(refreshTokensDocs)
+  async refreshAccessToken(@Cookies('refreshToken') token: string, @Res() res: Response) {
+    const user = await this.authService.refresh(token);
+    const authResponse = this.userService.userBuilder(user);
     this.setCookies(res, authResponse.refreshToken);
     delete authResponse.refreshToken;
     res.status(HttpStatus.OK).send(authResponse);
   }
 
   @Post('logout')
+  @ApiBearerAuth()
+  @ApiDocs(logoutDocs)
   @UseGuards(AuthGuard)
-  async logout(@Req() req: Request, @Res() res: Response) {
+  async logout(@Req() @Res() res: Response) {
     res.clearCookie('refreshToken');
     res.setHeader('Authorization', '');
     res.status(HttpStatus.OK).send({});
-  }
-
-  @Post('refresh')
-  @ApiResponse({ type: AuthResponseDto })
-  async refreshAccessToken(@Cookies('refreshToken') token: string, @Res() res: Response) {
-    const user = await this.authService.refresh(token);
-    const authResponse = await this.userService.userBuilder(user);
-    res.status(HttpStatus.OK).send(authResponse);
   }
 
   private setCookies(res: Response, token: string) {

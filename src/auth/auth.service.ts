@@ -3,7 +3,7 @@ import { compare } from 'bcrypt';
 import { JwtPayload } from 'jsonwebtoken';
 import { JwtService } from '../jwt/jwt.service';
 import { UserEntity } from '../user/entity/User.entity';
-import { LoginDataDto } from './dto/Login.dto';
+import { LoginDto } from './dto/Login.dto';
 import { UserRepository } from '../user/user.repository';
 
 @Injectable()
@@ -13,14 +13,14 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async login(loginUser: LoginDataDto): Promise<UserEntity> {
-    const user = await this.userRepository.findByEmail(loginUser.email);
+  async login(loginDto: LoginDto): Promise<UserEntity> {
+    const user = await this.userRepository.findByEmail(loginDto.email);
 
     if (!user) {
       throw new UnauthorizedException('Email or password is incorrect');
     }
 
-    const isPasswordCorrect = await compare(loginUser.password, user.password);
+    const isPasswordCorrect = await compare(loginDto.password, user.password);
 
     if (!isPasswordCorrect) {
       throw new UnauthorizedException('Email or password is incorrect');
@@ -29,18 +29,24 @@ export class AuthService {
     return user;
   }
 
-  refresh(token: string) {
+  async refresh(token: string) {
     if (!token) {
       throw new NotFoundException('Token not found');
     }
 
-    const tokenPayload = this.jwtService.validateToken(token, 'refreshToken') as JwtPayload;
+    const tokenPayload = (await this.jwtService.validateToken(token, 'refreshToken')) as JwtPayload;
 
     if (!tokenPayload) {
       throw new UnauthorizedException('Token is expired');
     }
 
     const userId = Number(tokenPayload.sub);
-    return this.userRepository.findById(userId);
+    const user = await this.userRepository.findById(userId);
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} was not found.`);
+    }
+
+    return user;
   }
 }
