@@ -17,13 +17,13 @@ export class TaskEntity {
   @Column()
   title: string;
 
-  @Column()
+  @Column({ nullable: true })
   description: string;
 
-  @Column()
+  @Column({ nullable: true })
   color: string;
 
-  @Column()
+  @Column({ nullable: true })
   category: string;
 
   @Column({ name: 'due_date', type: 'timestamp' })

@@ -14,11 +14,11 @@ async function bootstrap() {
   app.use(cookieParser());
   const logger = app.get(LogService);
   app.useGlobalFilters(new HttpExceptionFilter(logger));
-  app.useGlobalPipes(new ValidationPipe());
+  // app.useGlobalPipes(new ValidationPipe());
   app.setGlobalPrefix('api/v1');
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('swagger', app, document);
-  await app.listen(3000);
+  await app.listen(3003);
 }
 bootstrap();

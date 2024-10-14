@@ -1,6 +1,6 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { JwtService } from '../jwt/jwt.service';
-import { NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { LogService } from '../logger/log.service';
 import { UserRepository } from '../user/user.repository';
 import { ExtRequest } from '../shared/types';
@@ -19,13 +19,13 @@ export class AuthMiddleware implements NestMiddleware {
   async use(req: ExtRequest, res: Response, next: NextFunction) {
     try {
       const authHeaders = req.headers.authorization;
-      if (!authHeaders) {
+      if (!authHeaders || !authHeaders.startsWith('Bearer ')) {
         req.user = null;
         return next();
       }
 
       const token = req.headers.authorization.split(' ')[1];
-      const tokenPayload = this.jwtService.validateAccessToken(token);
+      const tokenPayload = await this.jwtService.validateToken(token, 'accessToken');
       const userId = Number(tokenPayload.sub);
       req.user = await this.userRepository.findById(Number(userId));
       next();

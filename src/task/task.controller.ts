@@ -11,95 +11,80 @@ import {
   Req,
   Res,
   UseGuards,
+  ValidationPipe,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
-import { ApiBody, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { CreateTaskDto } from './dto/CreateTask.dto';
+import { Response } from 'express';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { TaskDto } from './dto/Task.dto';
 import { TaskService } from './task.service';
-import { EditTaskDto } from './dto/EditTask.dto';
-import { TaskResponseDto } from './dto/TaskResponse.dto';
-import { AuthGuard } from '../guard/AuthGuard';
 import { ExtRequest } from '../shared/types';
+import { AuthGuard } from '../guard/AuthGuard';
+import { createTaskDocs, deleteTaskDocs, getTasksDocs, updateTaskDocs } from './docs/swagger-docs';
+import { ApiDocs } from '../shared/api-docs';
 
+@ApiBearerAuth()
 @ApiTags('tasks')
+@Controller('users/:userId/tasks')
 @UseGuards(AuthGuard)
-@Controller('tasks')
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
   @Get()
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Retrieve a list of all tasks',
-    type: TaskResponseDto,
-    isArray: true,
-  })
-  async getTasks(@Req() req: Request, @Res() res: Response) {
-    const tasks = await this.taskService.getTasks(req);
+  @ApiDocs(getTasksDocs)
+  async getTasks(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Req() req: ExtRequest,
+    @Res() res: Response,
+  ) {
+    const ownerId = req.user.id;
+    const tasks = await this.taskService.findAll(userId, ownerId);
     res.status(HttpStatus.OK).send(tasks);
   }
 
   @Post()
-  @ApiBody({
-    description: 'Data required to create a new task',
-    type: CreateTaskDto,
-  })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'The newly created task',
-    type: TaskResponseDto,
-  })
+  @ApiDocs(createTaskDocs)
   async createTask(
-    @Body() createTaskDto: CreateTaskDto,
+    @Param('userId', ParseIntPipe) userId: number,
+    @Body(new ValidationPipe({ groups: ['create'] })) taskDto: TaskDto,
     @Req() req: ExtRequest,
     @Res() res: Response,
   ) {
-    const newTask = await this.taskService.createTask(createTaskDto, req);
+    const ownerId = req.user.id;
+    const newTask = await this.taskService.create(taskDto, userId, ownerId);
     res.status(HttpStatus.OK).send(newTask);
   }
 
-  @Patch(':id')
-  @ApiParam({
-    description: 'Unique identifier of the task to be updated',
-    name: 'id',
-    type: Number,
-  })
-  @ApiBody({
-    description: 'Updated data for the task',
-    type: EditTaskDto,
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'The updated task',
-    type: TaskResponseDto,
-  })
+  @Patch(':taskId')
+  @ApiDocs(updateTaskDocs)
   async updateTask(
-    @Param('id', ParseIntPipe) taskId: number,
-    @Body() taskData: EditTaskDto,
+    @Param('userId', ParseIntPipe) userId: number,
+    @Param('taskId', ParseIntPipe) taskId: number,
+    @Body(
+      new ValidationPipe({
+        groups: ['update'],
+        skipMissingProperties: true,
+        whitelist: true,
+      }),
+    )
+    taskDto: TaskDto,
     @Req() req: ExtRequest,
     @Res() res: Response,
   ) {
-    const updatedTask = await this.taskService.updateTask(taskData, taskId, req);
-    console.log(updatedTask);
+    const ownerId = req.user.id;
+    const updatedTask = await this.taskService.update({ taskDto, taskId, userId, ownerId });
     res.status(HttpStatus.OK).send(updatedTask);
   }
 
-  @Delete(':id')
-  @ApiParam({
-    description: 'Unique identifier of the task to be deleted',
-    name: 'id',
-    type: Number,
-  })
-  @ApiResponse({
-    status: HttpStatus.NO_CONTENT,
-    description: 'Task successfully deleted',
-  })
+  @Delete(':taskId')
+  @ApiDocs(deleteTaskDocs)
   async deleteTask(
-    @Param('id', ParseIntPipe) taskId: number,
+    @Param('userId', ParseIntPipe) userId: number,
+    @Param('taskId', ParseIntPipe) taskId: number,
     @Req() req: ExtRequest,
     @Res() res: Response,
   ) {
-    await this.taskService.deleteTask(taskId, req);
+    const ownerId = req.user.id;
+    await this.taskService.delete(taskId, userId, ownerId);
     res.status(HttpStatus.NO_CONTENT).send();
   }
 }

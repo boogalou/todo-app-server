@@ -1,86 +1,104 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { CreateTaskDto } from './dto/CreateTask.dto';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { TaskDto } from './dto/Task.dto';
 import { TaskEntity } from './entity/Task.entity';
-import { EditTaskDto } from './dto/EditTask.dto';
-import { ExtRequest } from '../shared/types';
 import { TaskRepository } from './task.repository';
-import { UserRepository } from '../user/user.repository';
+import { UpdateTaskParams } from './types/taskService.types';
+import { TaskResponseDto } from './dto/TaskResponse.dto';
 
 @Injectable()
 export class TaskService {
-  constructor(
-    private readonly tasksRepository: TaskRepository,
-    private readonly userRepository: UserRepository,
-  ) {}
+  constructor(private readonly tasksRepository: TaskRepository) {}
 
-  async createTask(task: CreateTaskDto, req: ExtRequest) {
-    const userId = req.user.id;
-
-    const user = await this.userRepository.findById(userId);
-
-    if (!user) {
-      throw new UnauthorizedException('Unauthorized');
+  async create(taskDto: TaskDto, userId: number, ownerId: number) {
+    if (userId !== ownerId) {
+      throw new ForbiddenException('Access denied. You do not have enough permissions.');
     }
 
-    const newTask = new TaskEntity();
-    Object.assign(newTask, task);
-    newTask.user = user;
-
+    const newTask = this.tasksRepository.createEntity(taskDto);
     const savedTask = await this.tasksRepository.save(newTask);
-    delete savedTask.user;
-    return savedTask;
+
+    return this.toDto(savedTask);
   }
 
-  async getTasks(req: ExtRequest) {
-    const userId = req.user.id;
-
-    if (!userId) {
-      throw new ForbiddenException('Resource is not accessible. Unauthorized access');
+  async findAll(userId: number, ownerId: number) {
+    if (userId !== ownerId) {
+      throw new ForbiddenException('Access denied. You do not have enough permissions.');
     }
 
-    console.log('get tasks: ', userId);
-    return await this.tasksRepository.findAll(userId);
+    const tasks = await this.tasksRepository.findAll(userId);
+
+    return tasks.map((task) => this.toDto(task));
   }
 
-  async deleteTask(taskId: number, req: ExtRequest) {
-    const userId = req.user.id;
+  async delete(taskId: number, userId: number, ownerId: number) {
+    if (userId !== ownerId) {
+      throw new ForbiddenException('Access denied. You do not have enough permissions.');
+    }
 
-    if (!userId) {
-      throw new UnauthorizedException();
+    const isOwner = await this.tasksRepository.isOwner(taskId, userId);
+
+    if (!isOwner) {
+      throw new ForbiddenException(
+        'Access denied. You do not have enough permission to delete this task.',
+      );
     }
 
     const task = await this.tasksRepository.findById(taskId);
 
     if (!task) {
-      throw new NotFoundException(`The task with id:${taskId} was not found`);
-    }
-
-    if (task.user.id !== userId) {
-      throw new UnauthorizedException('You do not have permission to delete this task');
+      throw new NotFoundException(`Task with ID ${taskId} was not found.`);
     }
 
     return await this.tasksRepository.remove(task);
   }
 
-  async updateTask(taskData: EditTaskDto, taskId: number, req: ExtRequest) {
-    const userId = req.user.id;
-
-    if (!userId) {
-      throw new UnauthorizedException();
+  async update({ taskDto, taskId, userId, ownerId }: UpdateTaskParams) {
+    if (userId !== ownerId) {
+      throw new ForbiddenException('Access denied. You do not have enough permissions.');
     }
 
-    if (taskData.id !== taskId) {
-      throw new ForbiddenException('You do not have permission to edit this task');
+    const isOwner = await this.tasksRepository.isOwner(taskId, userId);
+
+    if (!isOwner) {
+      throw new ForbiddenException(
+        'Access denied. You do not have enough permission to edit this task.',
+      );
     }
 
-    await this.tasksRepository.update(taskData.id, taskData);
-    const updatedTask = await this.tasksRepository.findById(taskData.id);
-    delete updatedTask.user;
-    return updatedTask;
+    const task = await this.tasksRepository.findById(taskId);
+
+    if (!task) {
+      throw new NotFoundException(`Task with ID ${taskId} was not found.`);
+    }
+
+    const updatedTask = this.tasksRepository.mergeToEntity(task, taskDto);
+
+    const savedTask = await this.tasksRepository.save(updatedTask);
+    return this.toDto(savedTask);
+  }
+
+  private toDto(taskEntity: TaskEntity): Partial<TaskResponseDto> {
+    const dto: Partial<TaskResponseDto> = {};
+
+    const keys = [
+      'id',
+      'title',
+      'description',
+      'category',
+      'color',
+      'dueDate',
+      'isCompleted',
+      'createdAt',
+      'updatedAt',
+    ];
+
+    keys.forEach((key) => {
+      if (taskEntity[key] !== undefined) {
+        dto[key] =
+          taskEntity[key] instanceof Date ? taskEntity[key].toISOString() : taskEntity[key];
+      }
+    });
+
+    return dto;
   }
 }

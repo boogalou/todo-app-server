@@ -19,9 +19,9 @@ CREATE TABLE taskflow_schema.users (
 CREATE TABLE taskflow_schema.tasks (
                                        id SERIAL NOT NULL,
                                        title VARCHAR NOT NULL,
-                                       description VARCHAR NOT NULL,
-                                       color VARCHAR NOT NULL,
-                                       category VARCHAR NOT NULL,
+                                       description VARCHAR,
+                                       color VARCHAR,
+                                       category VARCHAR,
                                        due_date TIMESTAMP NOT NULL,
                                        created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
                                        updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),

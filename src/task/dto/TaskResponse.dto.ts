@@ -1,30 +1,11 @@
-import { ApiProperty } from '@nestjs/swagger';
-
 export class TaskResponseDto {
-  @ApiProperty()
-  id: number;
-
-  @ApiProperty()
-  title: string;
-
-  @ApiProperty()
-  description: string;
-
-  @ApiProperty()
-  color: string;
-
-  @ApiProperty()
-  category: string;
-
-  @ApiProperty()
-  dueDate: string;
-
-  @ApiProperty()
-  createdAt: string;
-
-  @ApiProperty()
-  updatedAt: string;
-
-  @ApiProperty()
-  isCompleted: boolean;
+  readonly id: number;
+  readonly title: string;
+  readonly description: string;
+  readonly color: string;
+  readonly category: string;
+  readonly dueDate: string;
+  readonly isCompleted: boolean;
+  readonly createdAt: string;
+  readonly updatedAt: string;
 }

@@ -8,9 +8,9 @@ export class Migrations1726421954654 implements MigrationInterface {
                              (
                                  "id"           SERIAL                   NOT NULL,
                                  "title"        character varying        NOT NULL,
-                                 "description"  character varying        NOT NULL,
-                                 "color"        character varying        NOT NULL,
-                                 "category"     character varying        NOT NULL,
+                                 "description"  character varying,
+                                 "color"        character varying,
+                                 "category"     character varying,
                                  "due_date"     TIMESTAMP                NOT NULL,
                                  "created_at"   TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
                                  "updated_at"   TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),

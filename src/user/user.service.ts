@@ -82,11 +82,11 @@ export class UserService {
   userBuilder(user: UserEntity): Promise<AuthResponse>;
   userBuilder(user: UserEntity, generateRefreshToken: boolean): Promise<AuthResponse>;
   async userBuilder(user: UserEntity, generateRefreshToken: boolean = false) {
-    const accessToken = this.jwtService.generateAccessToken(user.id, user.email);
+    const accessToken = this.jwtService.generateToken(user.id, user.email, 'accessToken');
     let refreshToken: string;
 
     if (generateRefreshToken) {
-      refreshToken = this.jwtService.generateRefreshToken(user.id, user.email);
+      refreshToken = this.jwtService.generateToken(user.id, user.email, 'refreshToken');
     }
 
     return {

@@ -39,7 +39,6 @@ export class AuthController {
     description: 'Successful user creation',
   })
   async register(@Body('user') createUserDto: UserDataDto, @Res() res: Response) {
-    console.log(createUserDto);
     const generateRefreshToken = true;
     const user = await this.userService.create(createUserDto);
     const authResponse = await this.userService.userBuilder(user, generateRefreshToken);
@@ -76,7 +75,6 @@ export class AuthController {
   }
 
   @Post('refresh')
-  @UseGuards(AuthGuard)
   @ApiResponse({ type: AuthResponseDto })
   async refreshAccessToken(@Cookies('refreshToken') token: string, @Res() res: Response) {
     const user = await this.authService.refresh(token);

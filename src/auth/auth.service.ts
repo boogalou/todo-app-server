@@ -34,7 +34,7 @@ export class AuthService {
       throw new NotFoundException('Token not found');
     }
 
-    const tokenPayload = this.jwtService.validateRefreshToken(token) as JwtPayload;
+    const tokenPayload = this.jwtService.validateToken(token, 'refreshToken') as JwtPayload;
 
     if (!tokenPayload) {
       throw new UnauthorizedException('Token is expired');

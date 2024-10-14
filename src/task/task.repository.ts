@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { TaskEntity } from './entity/Task.entity';
 import { Repository } from 'typeorm';
 import appDataSource from '../config/appDataSource.config';
-import { EditTaskDto } from './dto/EditTask.dto';
+import { TaskDto } from './dto/Task.dto';
 
 @Injectable()
 export class TaskRepository {
@@ -20,7 +20,7 @@ export class TaskRepository {
     }
   }
 
-  async update(taskId: number, task: EditTaskDto) {
+  async update(taskId: number, task: TaskEntity) {
     try {
       return await this.repository.update(taskId, task);
     } catch (err) {
@@ -78,5 +78,26 @@ export class TaskRepository {
         `Task repository: Failed find tasks. Database error: ${err}`,
       );
     }
+  }
+
+  async isOwner(taskId: number, userId: number) {
+    try {
+      const isExists = await this.repository.exists({
+        where: { id: taskId, user: { id: userId } },
+      });
+
+      console.log(isExists);
+      return isExists;
+    } catch (err) {
+      throw new InternalServerErrorException(`Failed to find task. Database: error: ${err}`);
+    }
+  }
+
+  mergeToEntity(taskEntity: TaskEntity, taskDto: TaskDto) {
+    return this.repository.merge(taskEntity, taskDto);
+  }
+
+  createEntity(taskDto: TaskDto) {
+    return this.repository.create(taskDto);
   }
 }
