@@ -34,7 +34,8 @@ export class UserSettingsController {
     @Req() req: ExtRequest,
     @Res() res: Response,
   ) {
-    const settings = await this.userSettingsService.getById(userId, req);
+    const ownerId = req.user.id;
+    const settings = await this.userSettingsService.getByUserId(userId, ownerId);
     res.status(HttpStatus.OK).send(settings);
   }
 
@@ -42,7 +43,14 @@ export class UserSettingsController {
   @ApiDocs(updateSettingsDocs)
   async update(
     @Param('userId', ParseIntPipe) userId: number,
-    @Body(new ValidationPipe({ groups: ['update'] })) settingsDto: UserSettingsDto,
+    @Body(
+      new ValidationPipe({
+        groups: ['update'],
+        whitelist: true,
+        skipMissingProperties: true,
+      }),
+    )
+    settingsDto: UserSettingsDto,
     @Req() req: ExtRequest,
     @Res() res: Response,
   ) {

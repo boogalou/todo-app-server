@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserSettingsEntity } from './entity/user-settings.entity';
 import { UserSettingsDto } from './dto/user-settings.dto';
-import appDataSource from '../config/appDataSource.config';
 
 @Injectable()
 export class UserSettingsRepository {
@@ -13,18 +12,7 @@ export class UserSettingsRepository {
   ) {}
 
   async findByUserId(userId: number) {
-    try {
-      return await appDataSource.manager
-        .getRepository(UserSettingsEntity)
-        .createQueryBuilder('settings')
-        .select(['settings.id', 'settings.theme', 'settings.language'])
-        .where('settings.user.id = :userId', { userId })
-        .getOne();
-    } catch (err) {
-      throw new InternalServerErrorException(
-        `Failed to find user settings by ID. Database error: ${err}`,
-      );
-    }
+    return await this.repository.findOne({ where: { user: { id: userId } } });
   }
 
   async findById(settingsId: number) {
@@ -43,11 +31,11 @@ export class UserSettingsRepository {
     }
   }
 
-  createEtity(settings: UserSettingsDto) {
+  createEntity(settings: UserSettingsDto) {
     return this.repository.create(settings);
   }
 
-  async update(settingsId: number, settingsDto: UserSettingsDto) {
-    return await this.repository.update(settingsId, settingsDto);
+  async isOwner(userId: number) {
+    return await this.repository.exists({ where: { user: { id: userId } } });
   }
 }

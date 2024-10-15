@@ -6,9 +6,11 @@ import { swaggerConfig } from './config/swagger.config';
 import { HttpExceptionFilter } from './middleware/HttpExeptionFilter.middleware';
 import { LogService } from './logger/log.service';
 import { corsConfig } from './config/cors.config';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
   app.enableCors(corsConfig);
   app.use(cookieParser());
   const logger = app.get(LogService);
@@ -17,6 +19,6 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('swagger', app, document);
-  await app.listen(3000);
+  await app.listen(configService.get('APP_PORT'));
 }
 bootstrap();

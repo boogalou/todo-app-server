@@ -2,17 +2,13 @@ import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/commo
 import { UserSettingsRepository } from './user-settings.repository';
 import { UserSettingsDto } from './dto/user-settings.dto';
 import { UserEntity } from '../user/entity/User.entity';
-import { ExtRequest } from '../shared/types';
 import { UserSettingsEntity } from './entity/user-settings.entity';
-import { TaskEntity } from '../task/entity/Task.entity';
 
 @Injectable()
 export class UserSettingsService {
   constructor(private readonly userSettingsRepository: UserSettingsRepository) {}
 
-  async getById(userId: number, req: ExtRequest) {
-    const ownerId = req.user.id;
-
+  async getByUserId(userId: number, ownerId: number) {
     if (userId !== ownerId) {
       throw new ForbiddenException(
         `Access denied. You don't have enough permissions to get these settings.`,
@@ -32,22 +28,16 @@ export class UserSettingsService {
       throw new NotFoundException('Settings not found');
     }
 
-    if (settings.user.id !== userId) {
-      throw new ForbiddenException(
-        'Access denied. You do not have enough permission to edit this settings.',
-      );
-    }
-
     const updatedSettings = { ...settings, ...settingsDto };
 
-    const savedSttings = await this.userSettingsRepository.save(updatedSettings);
+    const savedSettings = await this.userSettingsRepository.save(updatedSettings);
 
-    return this.toDto(savedSttings);
+    return this.toDto(savedSettings);
   }
 
   async initializeDefaultSettings(user: UserEntity) {
     const defaultSettings: UserSettingsDto = { language: 'eng', theme: 'system' };
-    const settings = this.userSettingsRepository.createEtity(defaultSettings);
+    const settings = this.userSettingsRepository.createEntity(defaultSettings);
     settings.user = user;
     return await this.userSettingsRepository.save(settings);
   }
