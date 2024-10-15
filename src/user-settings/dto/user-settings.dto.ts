@@ -1,21 +1,20 @@
-import { IsIn, IsNotEmpty } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsIn, IsNotEmpty, IsOptional } from 'class-validator';
 
 type Lang = 'eng' | 'rus';
 type Theme = 'system' | 'light' | 'dark';
 
 export class UserSettingsDto {
-  @ApiProperty()
+  @IsOptional()
   @IsNotEmpty({ groups: ['update'] })
   id?: number;
 
-  @ApiProperty()
+  @IsOptional()
   @IsNotEmpty({ groups: ['create', 'update'] })
   @IsIn(['eng', 'rus'], { groups: ['create', 'update'] })
-  language: Lang;
+  language?: Lang;
 
-  @ApiProperty()
+  @IsOptional()
   @IsNotEmpty({ groups: ['create', 'update'] })
   @IsIn(['system', 'light', 'dark'], { groups: ['create', 'update'] })
-  theme: Theme;
+  theme?: Theme;
 }

@@ -43,7 +43,11 @@ export class UserSettingsRepository {
     }
   }
 
-  create(settings: UserSettingsDto) {
+  createEtity(settings: UserSettingsDto) {
     return this.repository.create(settings);
+  }
+
+  async update(settingsId: number, settingsDto: UserSettingsDto) {
+    return await this.repository.update(settingsId, settingsDto);
   }
 }

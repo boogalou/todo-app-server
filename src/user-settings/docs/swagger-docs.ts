@@ -1,30 +1,84 @@
-import { ApiParamOptions, ApiResponseOptions, ApiOperationOptions } from '@nestjs/swagger';
+import {
+  ApiParamOptions,
+  ApiResponseOptions,
+  ApiOperationOptions,
+  ApiBodyOptions,
+} from '@nestjs/swagger';
 
 export const getUserSettingsDocs = {
   operation: <ApiOperationOptions>{
-    summary: 'Получить настройки пользователя по его ID',
+    summary: 'Retrieve user settings by their ID',
     description:
-      'Этот эндпоинт возвращает текущие настройки пользователя на основе его уникального ID.',
+      '**This endpoint returns the current settings of the user based on their unique ID**',
   },
-  param: <ApiParamOptions>{
-    name: 'userId',
-    description: 'Уникальный идентификатор пользователя',
-    example: 123,
-    type: 'number',
+  params: [
+    <ApiParamOptions>{
+      name: 'userId',
+      description: 'Unique identifier of the user',
+      example: 123,
+      type: 'number',
+    },
+  ],
+
+  responses: [
+    <ApiResponseOptions>{
+      status: 200,
+      description: 'Settings successfully returned',
+      schema: {
+        example: {
+          id: 123,
+          language: 'eng',
+          theme: 'dark',
+        },
+      },
+    },
+    <ApiResponseOptions>{
+      status: 404,
+      description: 'User with the specified ID not found',
+    },
+  ],
+};
+
+export const updateSettingsDocs = {
+  operation: <ApiOperationOptions>{
+    summary: 'Update user settings',
+    description:
+      'This operation allows updating the settings for a specific user, including language preferences and theme selection.',
   },
-  response200: <ApiResponseOptions>{
-    status: 200,
-    description: 'Настройки успешно возвращены',
+
+  params: [
+    <ApiParamOptions>{
+      name: 'userId',
+      description: 'Unique identifier of the user whose settings are being updated.',
+      example: 123,
+      type: 'number',
+    },
+  ],
+
+  body: <ApiBodyOptions>{
+    description:
+      'The request body should contain the new settings for the user, including language and theme preferences.',
     schema: {
+      type: 'object',
       example: {
-        id: 123,
-        language: 'eng',
+        id: 42,
+        language: 'rus',
         theme: 'dark',
       },
     },
   },
-  response404: <ApiResponseOptions>{
-    status: 404,
-    description: 'Пользователь с указанным ID не найден',
-  },
+
+  responses: [
+    <ApiResponseOptions>{
+      status: 200,
+      description: 'Settings successfully updated and returned.',
+      schema: {
+        example: {
+          id: 123,
+          language: 'eng',
+          theme: 'dark',
+        },
+      },
+    },
+  ],
 };

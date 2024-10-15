@@ -9,21 +9,16 @@ import {
   Req,
   Res,
   UseGuards,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ExtRequest } from '../shared/types';
 import { Response } from 'express';
-import {
-  ApiBearerAuth,
-  ApiBody,
-  ApiOperation,
-  ApiParam,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UserSettingsDto } from './dto/user-settings.dto';
 import { UserSettingsService } from './user-settings.service';
 import { AuthGuard } from '../guard/AuthGuard';
-import { getUserSettingsDocs } from './docs/swagger-docs';
+import { getUserSettingsDocs, updateSettingsDocs } from './docs/swagger-docs';
+import { ApiDocs } from '../shared/api-docs';
 
 @ApiTags('settings')
 @ApiBearerAuth()
@@ -32,11 +27,8 @@ import { getUserSettingsDocs } from './docs/swagger-docs';
 export class UserSettingsController {
   constructor(private readonly userSettingsService: UserSettingsService) {}
 
-  @ApiOperation(getUserSettingsDocs.operation)
-  @ApiParam(getUserSettingsDocs.param)
-  @ApiResponse(getUserSettingsDocs.response200)
-  @ApiResponse(getUserSettingsDocs.response404)
   @Get()
+  @ApiDocs(getUserSettingsDocs)
   async getByUserId(
     @Param('userId', ParseIntPipe) userId: number,
     @Req() req: ExtRequest,
@@ -46,26 +38,16 @@ export class UserSettingsController {
     res.status(HttpStatus.OK).send(settings);
   }
 
-  @ApiParam({
-    description: 'User ID',
-    name: 'userId',
-    type: 'number',
-  })
-  @ApiBody({
-    description: `Edit a user's settings`,
-    type: UserSettingsDto,
-  })
-  @ApiResponse({
-    description: '',
-  })
   @Put()
+  @ApiDocs(updateSettingsDocs)
   async update(
     @Param('userId', ParseIntPipe) userId: number,
-    @Body() settingsDto: UserSettingsDto,
+    @Body(new ValidationPipe({ groups: ['update'] })) settingsDto: UserSettingsDto,
     @Req() req: ExtRequest,
     @Res() res: Response,
   ) {
-    const settings = await this.userSettingsService.update(userId, settingsDto, req);
+    const ownerId = req.user.id;
+    const settings = await this.userSettingsService.update(settingsDto, userId, ownerId);
 
     res.status(HttpStatus.OK).send(settings);
   }
