@@ -1,6 +1,11 @@
 import { Request } from 'express';
-import { UserEntity } from '../user/entity/User.entity';
+
+export interface UserDetails {
+  id: number;
+  username: string;
+  email: string;
+}
 
 export interface ExtRequest extends Request {
-  user?: UserEntity;
+  user: UserDetails | null;
 }

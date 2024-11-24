@@ -1,14 +1,14 @@
 import { Logger, MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { dbconnectConfig } from './config/dbconnect.config';
-import { UserModule } from './user/user.module';
-import { AuthModule } from './auth/auth.module';
-import { TaskModule } from './task/task.module';
-import { JwtModule } from './jwt/jwt.module';
-import { AuthMiddleware } from './middleware/Auth.middleware';
-import { LogModule } from './logger/log.module';
-import { UserSettingsModule } from './user-settings/user-settings.module';
+import { dbconnectConfig } from './infrastructure/configs/dbconnect.config';
+import { UserModule } from './infrastructure/providers/user.module';
+import { AuthModule } from './infrastructure/providers/auth.module';
+import { TaskModule } from './infrastructure/providers/task.module';
+import { JwtModule } from './infrastructure/providers/jwt.module';
+import { AuthMiddleware } from './infrastructure/middleware/auth.middleware';
+import { LoggerModule } from './infrastructure/providers/logger.module';
+import { SettingsModule } from './infrastructure/providers/settings.module';
 
 @Module({
   imports: [
@@ -18,8 +18,8 @@ import { UserSettingsModule } from './user-settings/user-settings.module';
     AuthModule,
     TaskModule,
     JwtModule,
-    LogModule,
-    UserSettingsModule,
+    LoggerModule,
+    SettingsModule,
   ],
   providers: [Logger],
 })
@@ -28,8 +28,8 @@ export class AppModule {
     consumer
       .apply(AuthMiddleware)
       .exclude(
-        { path: 'login', method: RequestMethod.POST },
-        { path: 'registration', method: RequestMethod.POST },
+        { path: '/auth/login', method: RequestMethod.POST },
+        { path: '/users/registration', method: RequestMethod.POST },
       )
       .forRoutes({ path: '*', method: RequestMethod.ALL });
   }

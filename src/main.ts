@@ -2,10 +2,10 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
 import { SwaggerModule } from '@nestjs/swagger';
-import { swaggerConfig } from './config/swagger.config';
-import { HttpExceptionFilter } from './middleware/HttpExeptionFilter.middleware';
-import { LogService } from './logger/log.service';
-import { corsConfig } from './config/cors.config';
+import { swaggerConfig } from './infrastructure/configs/swagger.config';
+import { HttpExceptionFilter } from './infrastructure/middleware/http-exception-filter.middleware';
+import { LoggerServiceImpl } from './infrastructure/services/impl/logger.service';
+import { corsConfig } from './infrastructure/configs/cors.config';
 import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
@@ -13,9 +13,9 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   app.enableCors(corsConfig);
   app.use(cookieParser());
-  const logger = app.get(LogService);
+  const logger = app.get(LoggerServiceImpl);
   app.useGlobalFilters(new HttpExceptionFilter(logger));
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix('/api/v1');
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('swagger', app, document);
