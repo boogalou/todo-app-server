@@ -1,4 +1,4 @@
-import { Settings } from './entities/settings.entity';
+import { Settings } from '../entities/settings.entity';
 
 export interface SettingsRepository {
   findById(id: number): Promise<Settings | null>;

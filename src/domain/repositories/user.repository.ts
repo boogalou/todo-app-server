@@ -1,4 +1,4 @@
-import { User } from './entities/user.entity';
+import { User } from '../entities/user.entity';
 
 export interface UserRepository {
   findById(id: number): Promise<User | null>;
@@ -6,6 +6,8 @@ export interface UserRepository {
   findByEmail(email: string): Promise<User | null>;
 
   save(entity: User): Promise<User>;
+
+  isExists(email: string): Promise<boolean>;
 
   softDelete(id: number): Promise<boolean>;
 }

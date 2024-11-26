@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { JwtServiceImpl } from '../impl/jwt.service.impl';
+import { TaskServiceImpl } from '../../src/application/services/impl/task.service.impl';
 
-describe('JwtService', () => {
-  let service: JwtServiceImpl;
+describe('TaskService', () => {
+  let service: TaskServiceImpl;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [JwtServiceImpl],
+      providers: [TaskServiceImpl],
     }).compile();
 
-    service = module.get<JwtServiceImpl>(JwtServiceImpl);
+    service = module.get<TaskServiceImpl>(TaskServiceImpl);
   });
 
   it('should be defined', () => {

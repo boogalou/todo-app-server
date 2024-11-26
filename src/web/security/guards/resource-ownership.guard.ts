@@ -3,6 +3,7 @@ import { Reflector } from '@nestjs/core';
 import { TaskService } from '../../../application/services/task.service';
 import { Settings_Service, Task_Service } from '../../../shared/tokens';
 import { ExtRequest } from '../../../shared/types';
+import { SettingsService } from '../../../application/services/settings.service';
 
 @Injectable()
 export class ResourceOwnership implements CanActivate {

@@ -1,8 +1,10 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { JwtServiceImpl } from '../services/impl/jwt.service.impl';
 import { Jwt_Service } from '../../shared/tokens';
 
+@Global()
 @Module({
+  imports: [],
   providers: [
     {
       provide: Jwt_Service,
@@ -11,4 +13,4 @@ import { Jwt_Service } from '../../shared/tokens';
   ],
   exports: [Jwt_Service],
 })
-export class JwtModule {}
+export default class JwtModule {}

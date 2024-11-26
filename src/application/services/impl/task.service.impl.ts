@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Task_Repository, User_Repository } from '../../../shared/tokens';
-import { TaskRepository } from '../../../domain/task.repository';
-import { UserRepository } from '../../../domain/user.repository';
+import { TaskRepository } from '../../../domain/repositories/task.repository';
+import { UserRepository } from '../../../domain/repositories/user.repository';
 import { TaskService } from '../task.service';
 import { CreateTaskDto } from '../../../web/dto/task/create-task.dto';
 import { UpdateTaskDto } from '../../../web/dto/task/update-task.dto';

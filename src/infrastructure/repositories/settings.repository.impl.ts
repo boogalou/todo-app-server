@@ -2,15 +2,16 @@ import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Settings } from '../../domain/entities/settings.entity';
-import { SettingsRepository } from '../../domain/settings.repository';
-import { LoggerService } from '../services/logger.service';
+import { SettingsRepository } from '../../domain/repositories/settings.repository';
+import { LoggerService } from '../../application/services/logger.service';
+import { Logger_Service } from '../../shared/tokens';
 
 @Injectable()
 export class SettingsRepositoryImpl implements SettingsRepository {
   constructor(
     @InjectRepository(Settings)
     private readonly repository: Repository<Settings>,
-    @Inject('LOGGER')
+    @Inject(Logger_Service)
     private readonly logger: LoggerService,
   ) {}
 

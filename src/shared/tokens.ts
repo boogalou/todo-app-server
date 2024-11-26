@@ -20,3 +20,8 @@ export const Task_Mapper = Symbol('TASK_MAPPER');
 export const Settings_Service = Symbol('SETTINGS_SERVICE');
 export const Settings_Repository = Symbol('SETTINGS_REPOSITORY');
 export const Settings_Mapper = Symbol('SETTINGS_MAPPER');
+
+// Logger Module
+export const Logger_Service = Symbol('LOGGER_SERVICE');
+
+export const Bcrypt_Service = Symbol('BCRYPT_SERVICE');

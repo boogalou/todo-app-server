@@ -1,58 +1,40 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { SettingsRepositoryImpl } from '../../../infrastructure/repositories/settings.repository.impl';
+import { Inject, Injectable } from '@nestjs/common';
+import { SettingsService } from '../settings.service';
+import { SettingsRepository } from '../../../domain/repositories/settings.repository';
+import { Settings_Mapper, Settings_Repository } from '../../../shared/tokens';
 import { SettingsDto } from '../../../web/dto/settings/settings.dto';
-import { User } from '../../../domain/entities/user.entity';
-import { Settings } from '../../../domain/entities/settings.entity';
+import { SettingsMapper } from '../../../web/mappers/settings/settings-mapper.';
 
 @Injectable()
-export class SettingsServiceImpl {
-  constructor(private readonly userSettingsRepository: SettingsRepositoryImpl) {}
+export class SettingsServiceImpl implements SettingsService {
+  constructor(
+    @Inject(Settings_Repository)
+    private readonly repository: SettingsRepository,
+    @Inject(Settings_Mapper)
+    private readonly settingsMapper: SettingsMapper,
+  ) {}
 
-  async getByUserId(userId: number, ownerId: number) {
-    if (userId !== ownerId) {
-      throw new ForbiddenException(
-        `Access denied. You don't have enough permissions to get these settings.`,
-      );
-    }
-    return await this.userSettingsRepository.findByUserId(userId);
+  public async getById(id: number) {
+    return await this.repository.findById(id);
   }
 
-  async update(settingsDto: SettingsDto, userId: number, ownerId: number) {
-    if (userId !== ownerId) {
-      throw new ForbiddenException(`Access denied. You don't have enough permissions`);
-    }
-
-    const settings = await this.userSettingsRepository.findByUserId(userId);
-
-    if (!settings) {
-      throw new NotFoundException('Settings not found');
-    }
-
-    const updatedSettings = { ...settings, ...settingsDto };
-
-    const savedSettings = await this.userSettingsRepository.save(updatedSettings);
-
-    return this.toDto(savedSettings);
+  public async getByUserId(userId: number) {
+    return await this.repository.findByUserId(userId);
   }
 
-  async initializeDefaultSettings(user: User) {
-    const defaultSettings: SettingsDto = { language: 'eng', theme: 'system' };
-    const settings = this.userSettingsRepository.createEntity(defaultSettings);
-    settings.user = user;
-    return await this.userSettingsRepository.save(settings);
+  public async save(dto: SettingsDto) {
+    const entity = this.settingsMapper.toEntity(dto);
+    return await this.repository.save(entity);
   }
 
-  private toDto(settingsEntity: Settings): Partial<SettingsDto> {
-    const dto: Partial<SettingsDto> = {};
+  public async update(dto: SettingsDto) {
+    const updatedSettings = await this.save(dto);
+    return this.settingsMapper.toDto(updatedSettings);
+  }
 
-    const keys = ['id', 'language', 'theme'];
+  public async isOwner(userId: number, settingsId: number) {
+    const settings = await this.getById(settingsId);
 
-    keys.forEach((key) => {
-      if (settingsEntity[key] !== undefined) {
-        dto[key] = settingsEntity[key];
-      }
-    });
-
-    return dto;
+    return settings && userId === settings.user.id;
   }
 }

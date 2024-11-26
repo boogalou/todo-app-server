@@ -1,4 +1,4 @@
-import { TypeToken } from './impl/jwt.service.impl';
+import { TypeToken } from '../../infrastructure/services/impl/jwt.service.impl';
 import { JwtPayload } from 'jsonwebtoken';
 
 export interface JwtService {

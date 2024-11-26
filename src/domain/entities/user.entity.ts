@@ -25,7 +25,7 @@ export class User {
   @Column({ nullable: false })
   password: string;
 
-  @Column({ name: 'user_pic' })
+  @Column({ name: 'user_pic', nullable: true })
   userPic: string;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp with time zone', nullable: false })
@@ -34,7 +34,7 @@ export class User {
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp with time zone', nullable: false })
   updatedAt: Date;
 
-  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp with time zone' })
+  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp with time zone', nullable: true })
   deletedAt: Date;
 
   @OneToMany(() => Task, (task) => task.user, { cascade: true })

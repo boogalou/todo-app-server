@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UserDetailsService } from '../user-details.service';
 import { User_Repository } from '../../../shared/tokens';
-import { UserRepository } from '../../../domain/user.repository';
+import { UserRepository } from '../../../domain/repositories/user.repository';
 import { UserDetails } from '../../../shared/types';
 
 @Injectable()

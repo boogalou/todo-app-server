@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JsonWebTokenError, sign, TokenExpiredError, verify } from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
-import { JwtService } from '../jwt.service';
+import { JwtService } from '../../../application/services/jwt.service';
 
 export type TypeToken = 'accessToken' | 'refreshToken' | 'activationToken';
 const JWT_ACCESS_SECRET = 'JWT_ACCESS_SECRET';

@@ -2,18 +2,19 @@ import { Inject, Injectable, InternalServerErrorException, LoggerService } from 
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../../domain/entities/user.entity';
 import { Repository } from 'typeorm';
-import { UserRepository } from '../../domain/user.repository';
+import { UserRepository } from '../../domain/repositories/user.repository';
+import { Logger_Service } from '../../shared/tokens';
 
 @Injectable()
 export class UserRepositoryImpl implements UserRepository {
   constructor(
     @InjectRepository(User)
     private readonly repository: Repository<User>,
-    @Inject('LOGGER')
+    @Inject(Logger_Service)
     private readonly logger: LoggerService,
   ) {}
 
-  async findById(userId: number): Promise<User | null> {
+  public async findById(userId: number): Promise<User | null> {
     try {
       return await this.repository.findOne({ where: { id: userId } });
     } catch (err) {
@@ -27,7 +28,7 @@ export class UserRepositoryImpl implements UserRepository {
     }
   }
 
-  async findByEmail(email: string): Promise<User | null> {
+  public async findByEmail(email: string): Promise<User | null> {
     try {
       return await this.repository.findOne({ where: { email } });
     } catch (err) {
@@ -41,7 +42,7 @@ export class UserRepositoryImpl implements UserRepository {
     }
   }
 
-  async save(user: User): Promise<User> {
+  public async save(user: User): Promise<User> {
     try {
       return await this.repository.save(user);
     } catch (err) {
@@ -55,7 +56,7 @@ export class UserRepositoryImpl implements UserRepository {
     }
   }
 
-  async softDelete(id: number): Promise<boolean> {
+  public async softDelete(id: number): Promise<boolean> {
     try {
       const result = await this.repository.softDelete(id);
       if (result.affected === 0) {
@@ -72,6 +73,20 @@ export class UserRepositoryImpl implements UserRepository {
       );
       throw new InternalServerErrorException(
         `Unable to delete user with ID ${id}. Please try again later.`,
+      );
+    }
+  }
+
+  public async isExists(email: string): Promise<boolean> {
+    try {
+      return this.repository.exists({ where: { email } });
+    } catch (err) {
+      this.logger.error(
+        `Error occurred while checking existence of user with email "${email}". Reason: ${err.message}`,
+        err.stack,
+      );
+      throw new InternalServerErrorException(
+        `Unable to check existence of user with email "${email}". Please try again later.`,
       );
     }
   }

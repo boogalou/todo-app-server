@@ -18,7 +18,7 @@ import {
 import { Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
 import { ExtRequest } from '../../shared/types';
-import { AuthGuard } from '../security/guards/auth.guard';
+import { JwtAuthGuard } from '../security/guards/jwt-auth.guard';
 import { UserService } from '../../application/services/user.service';
 import { UpdateUserDto } from '../dto/user/update-user.dto';
 import { CreateUserDto } from '../dto/user/create-user.dto';
@@ -26,7 +26,6 @@ import { User_Service } from '../../shared/tokens';
 
 @ApiTags('users')
 @Controller('/users')
-@UseGuards(AuthGuard)
 export class UserController {
   constructor(
     @Inject(User_Service)
@@ -41,6 +40,7 @@ export class UserController {
   }
 
   @Patch()
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe())
   async update(@Body() dto: UpdateUserDto) {
@@ -49,6 +49,7 @@ export class UserController {
   }
 
   @Delete('/:id')
+  @UseGuards(JwtAuthGuard)
   async deleteAccount(
     @Param('id', ParseIntPipe) userId: number,
     @Req() req: ExtRequest,

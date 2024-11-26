@@ -1,43 +1,45 @@
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
-import { hash } from 'bcrypt';
-import { UserRepository } from '../../../domain/user.repository';
+import { UserRepository } from '../../../domain/repositories/user.repository';
 import { UserService } from '../user.service';
 import { CreateUserDto } from '../../../web/dto/user/create-user.dto';
 import { User } from '../../../domain/entities/user.entity';
 import { UserMapper } from '../../../web/mappers/user/user.mapper';
 import { UpdateUserDto } from '../../../web/dto/user/update-user.dto';
-import { User_Mapper, User_Repository } from '../../../shared/tokens';
+import { Bcrypt_Service, User_Mapper, User_Repository } from '../../../shared/tokens';
+import { BcryptService } from '../bcryptService';
 
 @Injectable()
 export class UserServiceImpl implements UserService {
   constructor(
     @Inject(User_Repository)
-    private readonly userRepository: UserRepository,
+    private readonly repository: UserRepository,
     @Inject(User_Mapper)
     private readonly userMapper: UserMapper,
+    @Inject(Bcrypt_Service)
+    private readonly bcryptService: BcryptService,
   ) {}
 
   public async create(dto: CreateUserDto): Promise<User> {
-    if (await this.getByEmail(dto.email)) {
+    if (await this.repository.isExists(dto.email)) {
       throw new ConflictException('User already exists');
     }
 
     const user = this.userMapper.toCreateUserEntity(dto);
-    user.password = await this.hashPassword(dto.password);
+    user.password = await this.bcryptService.hash(dto.password);
 
     return this.save(user);
   }
 
   public async delete(id: number): Promise<boolean> {
-    return await this.userRepository.softDelete(id);
+    return await this.repository.softDelete(id);
   }
 
   public async getByEmail(email: string): Promise<User> {
-    return this.userRepository.findByEmail(email);
+    return this.repository.findByEmail(email);
   }
 
   public async getById(id: number): Promise<User> {
-    return await this.userRepository.findById(id);
+    return await this.repository.findById(id);
   }
 
   public async update(dto: UpdateUserDto): Promise<User> {
@@ -47,15 +49,11 @@ export class UserServiceImpl implements UserService {
   }
 
   public async save(user: User): Promise<User> {
-    return await this.userRepository.save(user);
+    return await this.repository.save(user);
   }
 
   public async isOwner(userId: number, resourceId: number): Promise<boolean> {
-    const task = await this.findById(resourceId);
-    return task && userId === task.user.id;
-  }
-
-  private async hashPassword(password: string) {
-    return await hash(password, 12);
+    const user = await this.getById(resourceId);
+    return user && userId === user.id;
   }
 }

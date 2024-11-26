@@ -1,11 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Logger } from 'winston';
-import { LoggerService } from '../logger.service';
+import { LoggerService } from '../../../application/services/logger.service';
+import { Logger_Service } from '../../../shared/tokens';
 
 @Injectable()
 export class LoggerServiceImpl implements LoggerService {
   constructor(
-    @Inject('LOGGER')
+    @Inject(Logger_Service)
     private readonly logger: Logger,
   ) {}
 

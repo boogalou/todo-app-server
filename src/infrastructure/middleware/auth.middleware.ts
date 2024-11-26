@@ -1,10 +1,10 @@
 import { Inject, Injectable, NestMiddleware } from '@nestjs/common';
-import { NextFunction, Response, Request } from 'express';
+import { NextFunction, Response } from 'express';
 
-import { JwtService } from '../services/jwt.service';
-import { Jwt_Service, User_Details_Service } from '../../shared/tokens';
+import { JwtService } from '../../application/services/jwt.service';
+import { Jwt_Service, Logger_Service, User_Details_Service } from '../../shared/tokens';
 import { UserDetailsService } from '../services/user-details.service';
-import { LoggerService } from '../services/logger.service';
+import { LoggerService } from '../../application/services/logger.service';
 import { ExtRequest } from '../../shared/types';
 
 @Injectable()
@@ -14,7 +14,7 @@ export class AuthMiddleware implements NestMiddleware {
     private readonly jwtService: JwtService,
     @Inject(User_Details_Service)
     private readonly userDetails: UserDetailsService,
-    @Inject('LOGGER')
+    @Inject(Logger_Service)
     private readonly logger: LoggerService,
   ) {}
 

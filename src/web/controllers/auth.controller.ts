@@ -1,10 +1,10 @@
 import {
   Body,
   Controller,
+  HttpCode,
   HttpStatus,
   Inject,
   Post,
-  Req,
   Res,
   UseGuards,
   UsePipes,
@@ -14,15 +14,15 @@ import { Response } from 'express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Cookies } from '../security/decorators/cookies.decorator';
 import { LoginUserDto } from '../dto/auth/login-user.dto';
-import { AuthGuard } from '../security/guards/auth.guard';
+import { JwtAuthGuard } from '../security/guards/jwt-auth.guard';
 import { ApiDocs } from '../../shared/api-docs';
 import { loginDocs, logoutDocs, refreshTokensDocs } from '../docs/auth.docs';
 import { Auth_Service, Jwt_Service } from '../../shared/tokens';
 import { AuthService } from '../../application/services/auth.service';
-import { JwtService } from '../../infrastructure/services/jwt.service';
+import { JwtService } from '../../application/services/jwt.service';
 
 @ApiTags('auth')
-@Controller()
+@Controller('auth')
 export class AuthController {
   constructor(
     @Inject(Auth_Service)
@@ -31,32 +31,34 @@ export class AuthController {
     private readonly jwtService: JwtService,
   ) {}
 
-  @Post('login')
-  @ApiDocs(loginDocs)
+  @Post('/login')
+  @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe())
-  async login(@Body() loginDto: LoginUserDto, @Res() res: Response) {
-    const response = await this.authService.login(loginDto);
+  @ApiDocs(loginDocs)
+  public async login(@Body() dto: LoginUserDto, @Res() res: Response) {
+    const response = await this.authService.login(dto);
     const refreshToken = this.jwtService.createToken(response.id, response.email, 'refreshToken');
     this.setCookies(res, refreshToken);
 
     res.status(HttpStatus.OK).send(response);
   }
 
-  @Post('refresh')
+  @Post('/refresh')
+  @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @ApiDocs(refreshTokensDocs)
-  async refreshAccessToken(@Cookies('refreshToken') token: string, @Res() res: Response) {
-    const dto = await this.authService.refresh(token);
-    const refreshToken = this.jwtService.createToken(dto.id, dto.email, 'refreshToken');
+  public async refreshAccessToken(@Cookies('refreshToken') token: string, @Res() res: Response) {
+    const response = await this.authService.refresh(token);
+    const refreshToken = this.jwtService.createToken(response.id, response.email, 'refreshToken');
     this.setCookies(res, refreshToken);
-    res.status(HttpStatus.OK).send(dto);
+    res.status(HttpStatus.OK).send(response);
   }
 
-  @Post('logout')
+  @Post('/logout')
   @ApiBearerAuth()
   @ApiDocs(logoutDocs)
-  @UseGuards(AuthGuard)
-  async logout(@Req() @Res() res: Response) {
+  @UseGuards(JwtAuthGuard)
+  public async logout(@Res() res: Response) {
     res.clearCookie('refreshToken');
     res.setHeader('Authorization', '');
     res.status(HttpStatus.OK).send({});

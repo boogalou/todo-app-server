@@ -1,11 +1,15 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
-import { JwtServiceImpl } from '../services/impl/jwt.service.impl';
+import { Inject, Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Response } from 'express';
 import { ExtRequest } from '../../shared/types';
+import { Jwt_Service } from '../../shared/tokens';
+import { JwtService } from '../../application/services/jwt.service';
 
 @Injectable()
 export class RefreshTokenMiddleware implements NestMiddleware {
-  constructor(private readonly jwtService: JwtServiceImpl) {}
+  constructor(
+    @Inject(Jwt_Service)
+    private readonly jwtService: JwtService,
+  ) {}
 
   async use(req: ExtRequest, res: Response, next: NextFunction) {
     const token = req.cookies['refreshToken'];

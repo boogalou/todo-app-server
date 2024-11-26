@@ -1,20 +1,15 @@
-import { IsIn, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsNotEmpty } from 'class-validator';
 
 type Lang = 'eng' | 'rus';
 type Theme = 'system' | 'light' | 'dark';
 
 export class SettingsDto {
-  @IsOptional()
-  @IsNotEmpty({ groups: ['update'] })
-  id?: number;
+  @IsNotEmpty()
+  id: number;
 
-  @IsOptional()
-  @IsNotEmpty({ groups: ['create', 'update'] })
-  @IsIn(['eng', 'rus'], { groups: ['create', 'update'] })
+  @IsNotEmpty()
   language?: Lang;
 
-  @IsOptional()
-  @IsNotEmpty({ groups: ['create', 'update'] })
-  @IsIn(['system', 'light', 'dark'], { groups: ['create', 'update'] })
+  @IsNotEmpty()
   theme?: Theme;
 }

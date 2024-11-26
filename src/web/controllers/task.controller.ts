@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Inject,
   Param,
   ParseIntPipe,
   Patch,
@@ -16,28 +17,31 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { TaskServiceImpl } from '../../application/services/impl/task.service.impl';
 import { ExtRequest, UserDetails } from '../../shared/types';
-import { AuthGuard } from '../security/guards/auth.guard';
+import { JwtAuthGuard } from '../security/guards/jwt-auth.guard';
 import { createTaskDocs, deleteTaskDocs, getTasksDocs, updateTaskDocs } from '../docs/task.docs';
 import { ApiDocs } from '../../shared/api-docs';
 import { UpdateTaskDto } from '../dto/task/update-task.dto';
 import { CreateTaskDto } from '../dto/task/create-task.dto';
 import { UserAuth } from '../security/decorators/user-details.decorator';
+import { Task_Service } from '../../shared/tokens';
+import { TaskService } from '../../application/services/task.service';
 
 @ApiBearerAuth()
 @ApiTags('tasks')
 @Controller('tasks')
-@UseGuards(AuthGuard)
+@UseGuards(JwtAuthGuard)
 export class TaskController {
-  constructor(private readonly taskService: TaskServiceImpl) {}
+  constructor(
+    @Inject(Task_Service)
+    private readonly taskService: TaskService,
+  ) {}
 
   @Get()
   @HttpCode(HttpStatus.OK)
   @ApiDocs(getTasksDocs)
   async getTasks(@UserAuth() user: UserDetails) {
-    const ownerId = user.id;
-    return await this.taskService.findAll(userId, ownerId);
+    return await this.taskService.getAll(user.id);
   }
 
   @Post()
@@ -62,13 +66,11 @@ export class TaskController {
   @Delete('/:id')
   @ApiDocs(deleteTaskDocs)
   async deleteTask(
-    @Param('userId', ParseIntPipe) userId: number,
+    @UserAuth() user: UserDetails,
     @Param('taskId', ParseIntPipe) taskId: number,
-    @Req() req: ExtRequest,
     @Res() res: Response,
   ) {
-    const ownerId = req.user.id;
-    await this.taskService.delete(taskId, userId, ownerId);
+    await this.taskService.delete(taskId, user.id);
     res.status(HttpStatus.NO_CONTENT).send();
   }
 }

@@ -1,17 +1,16 @@
-import { Module } from '@nestjs/common';
-import { LoggerServiceImpl } from '../services/impl/logger.service';
+import { Global, Module } from '@nestjs/common';
 import { createLogger } from 'winston';
 import { loggerConfig } from '../configs/logger.config';
+import { Logger_Service } from '../../shared/tokens';
 
+@Global()
 @Module({
   providers: [
     {
-      provide: 'LOGGER',
+      provide: Logger_Service,
       useFactory: () => createLogger(loggerConfig),
     },
-
-    LoggerServiceImpl,
   ],
-  exports: [LoggerServiceImpl],
+  exports: [Logger_Service],
 })
-export class LoggerModule {}
+export default class LoggerModule {}

@@ -3,14 +3,13 @@ import { TaskServiceImpl } from '../../application/services/impl/task.service.im
 import { TaskController } from '../../web/controllers/task.controller';
 import { Task } from '../../domain/entities/task.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserModule } from './user.module';
-import { JwtModule } from './jwt.module';
 import { TaskRepositoryImpl } from '../repositories/task.repository.impl';
 import { Task_Mapper, Task_Repository, Task_Service } from '../../shared/tokens';
 import { TaskMapperImpl } from '../../web/mappers/task/task.mapper.impl';
+import UserModule from './user.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Task]), UserModule, JwtModule],
+  imports: [TypeOrmModule.forFeature([Task]), UserModule],
   providers: [
     {
       provide: Task_Service,
@@ -28,4 +27,4 @@ import { TaskMapperImpl } from '../../web/mappers/task/task.mapper.impl';
   controllers: [TaskController],
   exports: [Task_Service],
 })
-export class TaskModule {}
+export default class TaskModule {}

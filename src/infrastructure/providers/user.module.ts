@@ -3,7 +3,6 @@ import { UserServiceImpl } from '../../application/services/impl/user.service.im
 import { UserController } from '../../web/controllers/user.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../../domain/entities/user.entity';
-import { JwtModule } from './jwt.module';
 import { UserRepositoryImpl } from '../repositories/user.repository.impl';
 import { UserMapperImpl } from '../../web/mappers/user/user-mapper.impl';
 import {
@@ -15,7 +14,7 @@ import {
 import { UserDetailsServiceImpl } from '../services/impl/user-details.service.impl';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), JwtModule],
+  imports: [TypeOrmModule.forFeature([User])],
   providers: [
     {
       provide: User_Service,
@@ -37,4 +36,4 @@ import { UserDetailsServiceImpl } from '../services/impl/user-details.service.im
   controllers: [UserController],
   exports: [User_Service, User_Repository, User_Mapper, User_Details_Service],
 })
-export class UserModule {}
+export default class UserModule {}

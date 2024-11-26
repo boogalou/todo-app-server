@@ -2,14 +2,15 @@ import { Inject, Injectable, InternalServerErrorException, LoggerService } from 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Task } from '../../domain/entities/task.entity';
 import { Repository } from 'typeorm';
-import { TaskRepository } from '../../domain/task.repository';
+import { TaskRepository } from '../../domain/repositories/task.repository';
+import { Logger_Service } from '../../shared/tokens';
 
 @Injectable()
 export class TaskRepositoryImpl implements TaskRepository {
   constructor(
     @InjectRepository(Task)
     private readonly repository: Repository<Task>,
-    @Inject('LOGGER')
+    @Inject(Logger_Service)
     private readonly logger: LoggerService,
   ) {}
 

@@ -3,9 +3,8 @@ import { config } from 'dotenv';
 import { ConfigService } from '@nestjs/config';
 import { User } from '../../domain/entities/user.entity';
 import { Task } from '../../domain/entities/task.entity';
-import { Migrations1726421954654 } from '../database/migrations/1627807023150-migrations';
 import { Settings } from '../../domain/entities/settings.entity';
-import { Migrations1728026660060 } from '../database/migrations/1728026660060-migrations';
+import { Migrations1732524893867 } from '../database/1732524893867-migrations';
 
 config();
 
@@ -21,7 +20,7 @@ const appDataSource = new DataSource({
   schema: configService.getOrThrow('DB_SCHEMA'),
   synchronize: false,
   entities: [User, Task, Settings],
-  migrations: [Migrations1726421954654, Migrations1728026660060],
+  migrations: [Migrations1732524893867],
 });
 
 appDataSource

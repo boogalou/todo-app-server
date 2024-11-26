@@ -1,13 +1,20 @@
 import { Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { compare } from 'bcrypt';
-import { JwtPayload } from 'jsonwebtoken';
 import { LoginUserDto } from '../../../web/dto/auth/login-user.dto';
 import { AuthService } from '../auth.service';
-import { Auth_Mapper, Jwt_Service, User_Service } from '../../../shared/tokens';
+import {
+  Auth_Mapper,
+  Bcrypt_Service,
+  Jwt_Service,
+  Logger_Service,
+  User_Service,
+} from '../../../shared/tokens';
 import { UserService } from '../user.service';
 import { AuthMapper } from '../../../web/mappers/auth/auth-mapper';
 import { AuthResponseDto } from '../../../web/dto/auth/auth-response.dto';
-import { JwtService } from '../../../infrastructure/services/jwt.service';
+import { JwtService } from '../jwt.service';
+import { LoggerService } from '../logger.service';
+import { BcryptService } from '../bcryptService';
 
 @Injectable()
 export class AuthServiceImpl implements AuthService {
@@ -18,6 +25,10 @@ export class AuthServiceImpl implements AuthService {
     private readonly authMapper: AuthMapper,
     @Inject(Jwt_Service)
     private readonly jwtService: JwtService,
+    @Inject(Logger_Service)
+    private readonly logger: LoggerService,
+    @Inject(Bcrypt_Service)
+    private readonly bcryptService: BcryptService,
   ) {}
 
   async login(dto: LoginUserDto) {
@@ -27,7 +38,7 @@ export class AuthServiceImpl implements AuthService {
       throw new UnauthorizedException('Email or password is incorrect');
     }
 
-    const isPasswordCorrect = await compare(dto.password, user.password);
+    const isPasswordCorrect = await this.bcryptService.compare(dto.password, user.password);
 
     if (!isPasswordCorrect) {
       throw new UnauthorizedException('Email or password is incorrect');
@@ -35,7 +46,7 @@ export class AuthServiceImpl implements AuthService {
 
     const responseDto = this.authMapper.toDto(user);
     const accessToken = this.jwtService.createToken(user.id, user.email, 'accessToken');
-
+    this.logger.info(JSON.stringify(responseDto, null, 2));
     return { ...responseDto, accessToken } as AuthResponseDto;
   }
 

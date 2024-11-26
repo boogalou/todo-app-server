@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { TaskServiceImpl } from '../services/impl/task.service.impl';
+import { AuthServiceImpl } from '../../src/application/services/impl/auth.service.impl';
 
-describe('TaskService', () => {
-  let service: TaskServiceImpl;
+describe('AuthService', () => {
+  let service: AuthServiceImpl;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [TaskServiceImpl],
+      providers: [AuthServiceImpl],
     }).compile();
 
-    service = module.get<TaskServiceImpl>(TaskServiceImpl);
+    service = module.get<AuthServiceImpl>(AuthServiceImpl);
   });
 
   it('should be defined', () => {
