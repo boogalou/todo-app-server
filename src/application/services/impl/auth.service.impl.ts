@@ -1,6 +1,6 @@
 import { Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { compare } from 'bcrypt';
-import { LoginUserDto } from '../../../web/dto/auth/login-user.dto';
+import { LoginUserDto } from '../../dto/auth/login-user.dto';
 import { AuthService } from '../auth.service';
 import {
   Auth_Mapper,
@@ -10,11 +10,11 @@ import {
   User_Service,
 } from '../../../shared/tokens';
 import { UserService } from '../user.service';
-import { AuthMapper } from '../../../web/mappers/auth/auth-mapper';
-import { AuthResponseDto } from '../../../web/dto/auth/auth-response.dto';
+import { AuthMapper } from '../../mappers/auth/auth-mapper';
+import { AuthResponseDto } from '../../dto/auth/auth-response.dto';
 import { JwtService } from '../jwt.service';
 import { LoggerService } from '../logger.service';
-import { BcryptService } from '../bcryptService';
+import { BcryptService } from '../bcrypt.service';
 
 @Injectable()
 export class AuthServiceImpl implements AuthService {

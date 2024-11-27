@@ -8,11 +8,11 @@ import { UpdateUserDto } from '../../dto/user/update-user.dto';
 
 @Injectable()
 export class UserMapperImpl implements UserMapper {
-  toCreateUserEntity(dto: CreateUserDto): User {
+  toEntityFromCreate(dto: CreateUserDto): User {
     return plainToInstance(User, dto);
   }
 
-  toUpdateUserEntity(dto: UpdateUserDto): User {
+  toEntityFromUpdate(dto: UpdateUserDto): User {
     return plainToInstance(User, dto);
   }
 

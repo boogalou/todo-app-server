@@ -10,7 +10,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { SettingsDto } from '../dto/settings/settings.dto';
+import { SettingsDto } from '../../application/dto/settings/settings.dto';
 import { JwtAuthGuard } from '../security/guards/jwt-auth.guard';
 import { getUserSettingsDocs, updateSettingsDocs } from '../docs/swagger-docs';
 import { ApiDocs } from '../../shared/api-docs';

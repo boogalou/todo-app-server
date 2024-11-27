@@ -1,6 +1,6 @@
-import { CreateUserDto } from '../../web/dto/user/create-user.dto';
+import { CreateUserDto } from '../dto/user/create-user.dto';
 import { User } from '../../domain/entities/user.entity';
-import { UpdateUserDto } from '../../web/dto/user/update-user.dto';
+import { UpdateUserDto } from '../dto/user/update-user.dto';
 
 export interface UserService {
   create(dto: CreateUserDto): Promise<User>;

@@ -1,12 +1,12 @@
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { UserRepository } from '../../../domain/repositories/user.repository';
 import { UserService } from '../user.service';
-import { CreateUserDto } from '../../../web/dto/user/create-user.dto';
+import { CreateUserDto } from '../../dto/user/create-user.dto';
 import { User } from '../../../domain/entities/user.entity';
-import { UserMapper } from '../../../web/mappers/user/user.mapper';
-import { UpdateUserDto } from '../../../web/dto/user/update-user.dto';
+import { UserMapper } from '../../mappers/user/user.mapper';
+import { UpdateUserDto } from '../../dto/user/update-user.dto';
 import { Bcrypt_Service, User_Mapper, User_Repository } from '../../../shared/tokens';
-import { BcryptService } from '../bcryptService';
+import { BcryptService } from '../bcrypt.service';
 
 @Injectable()
 export class UserServiceImpl implements UserService {
@@ -24,7 +24,7 @@ export class UserServiceImpl implements UserService {
       throw new ConflictException('User already exists');
     }
 
-    const user = this.userMapper.toCreateUserEntity(dto);
+    const user = this.userMapper.toEntityFromCreate(dto);
     user.password = await this.bcryptService.hash(dto.password);
 
     return this.save(user);
@@ -43,7 +43,7 @@ export class UserServiceImpl implements UserService {
   }
 
   public async update(dto: UpdateUserDto): Promise<User> {
-    const user = this.userMapper.toUpdateUserEntity(dto);
+    const user = this.userMapper.toEntityFromUpdate(dto);
 
     return await this.save(user);
   }

@@ -13,7 +13,7 @@ import {
 import { Response } from 'express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Cookies } from '../security/decorators/cookies.decorator';
-import { LoginUserDto } from '../dto/auth/login-user.dto';
+import { LoginUserDto } from '../../application/dto/auth/login-user.dto';
 import { JwtAuthGuard } from '../security/guards/jwt-auth.guard';
 import { ApiDocs } from '../../shared/api-docs';
 import { loginDocs, logoutDocs, refreshTokensDocs } from '../docs/auth.docs';

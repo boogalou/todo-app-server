@@ -1,9 +1,10 @@
 import { Task } from '../../domain/entities/task.entity';
-import { UpdateTaskDto } from '../../web/dto/task/update-task.dto';
-import { CreateTaskDto } from '../../web/dto/task/create-task.dto';
+import { UpdateTaskDto } from '../dto/task/update-task.dto';
+import { CreateTaskDto } from '../dto/task/create-task.dto';
+import { TaskResponseDto } from '../dto/task/TaskResponse.dto';
 
 export interface TaskService {
-  create(dto: CreateTaskDto): Promise<Task>;
+  create(dto: CreateTaskDto, id: number): Promise<TaskResponseDto>;
 
   getById(id: number): Promise<Task | null>;
 

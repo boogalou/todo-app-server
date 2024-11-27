@@ -2,8 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { SettingsService } from '../settings.service';
 import { SettingsRepository } from '../../../domain/repositories/settings.repository';
 import { Settings_Mapper, Settings_Repository } from '../../../shared/tokens';
-import { SettingsDto } from '../../../web/dto/settings/settings.dto';
-import { SettingsMapper } from '../../../web/mappers/settings/settings-mapper.';
+import { SettingsDto } from '../../dto/settings/settings.dto';
+import { SettingsMapper } from '../../mappers/settings/settings-mapper.';
 
 @Injectable()
 export class SettingsServiceImpl implements SettingsService {

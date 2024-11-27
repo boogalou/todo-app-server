@@ -4,9 +4,9 @@ import { UserDto } from '../../dto/user/user.dto';
 import { UpdateUserDto } from '../../dto/user/update-user.dto';
 
 export interface UserMapper {
-  toCreateUserEntity(dto: CreateUserDto): User;
+  toEntityFromCreate(dto: CreateUserDto): User;
 
-  toUpdateUserEntity(dto: UpdateUserDto): User;
+  toEntityFromUpdate(dto: UpdateUserDto): User;
 
   toDto(entity: User): UserDto;
 }

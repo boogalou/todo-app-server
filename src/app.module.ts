@@ -3,13 +3,13 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { dbconnectConfig } from './infrastructure/configs/dbconnect.config';
 import { AuthMiddleware } from './infrastructure/middleware/auth.middleware';
-import AuthModule from './infrastructure/providers/auth.module';
-import BcryptModule from './infrastructure/providers/bcrypt.module';
-import JwtModule from './infrastructure/providers/jwt.module';
-import LoggerModule from './infrastructure/providers/logger.module';
-import SettingsModule from './infrastructure/providers/settings.module';
-import TaskModule from './infrastructure/providers/task.module';
-import UserModule from './infrastructure/providers/user.module';
+import AuthModule from './infrastructure/di/auth.module';
+import BcryptModule from './infrastructure/di/bcrypt.module';
+import JwtModule from './infrastructure/di/jwt.module';
+import LoggerModule from './infrastructure/di/logger.module';
+import SettingsModule from './infrastructure/di/settings.module';
+import TaskModule from './infrastructure/di/task.module';
+import UserModule from './infrastructure/di/user.module';
 
 @Module({
   imports: [

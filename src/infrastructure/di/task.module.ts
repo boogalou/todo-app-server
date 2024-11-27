@@ -5,7 +5,7 @@ import { Task } from '../../domain/entities/task.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TaskRepositoryImpl } from '../repositories/task.repository.impl';
 import { Task_Mapper, Task_Repository, Task_Service } from '../../shared/tokens';
-import { TaskMapperImpl } from '../../web/mappers/task/task.mapper.impl';
+import { TaskMapperImpl } from '../../application/mappers/task/task.mapper.impl';
 import UserModule from './user.module';
 
 @Module({

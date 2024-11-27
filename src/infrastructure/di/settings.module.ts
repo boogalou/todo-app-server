@@ -5,7 +5,7 @@ import { SettingsController } from '../../web/controllers/settings.controller';
 import { SettingsServiceImpl } from '../../application/services/impl/settings.service.impl';
 import { Settings_Mapper, Settings_Repository, Settings_Service } from '../../shared/tokens';
 import { SettingsRepositoryImpl } from '../repositories/settings.repository.impl';
-import { SettingsMapperImpl } from '../../web/mappers/settings/settings-mapper.impl';
+import { SettingsMapperImpl } from '../../application/mappers/settings/settings-mapper.impl';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Settings])],

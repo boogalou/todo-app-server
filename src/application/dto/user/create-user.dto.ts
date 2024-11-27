@@ -6,7 +6,7 @@ import {
   Length,
   MaxLength,
 } from 'class-validator';
-import { MatchPasswords } from '../../validations/decorators/match-password.decorator';
+import { MatchPasswords } from '../../../web/validations/decorators/match-password.decorator';
 
 const passwordOptions = {
   minLength: 6,

@@ -20,8 +20,8 @@ import { ApiTags } from '@nestjs/swagger';
 import { ExtRequest } from '../../shared/types';
 import { JwtAuthGuard } from '../security/guards/jwt-auth.guard';
 import { UserService } from '../../application/services/user.service';
-import { UpdateUserDto } from '../dto/user/update-user.dto';
-import { CreateUserDto } from '../dto/user/create-user.dto';
+import { UpdateUserDto } from '../../application/dto/user/update-user.dto';
+import { CreateUserDto } from '../../application/dto/user/create-user.dto';
 import { User_Service } from '../../shared/tokens';
 
 @ApiTags('users')

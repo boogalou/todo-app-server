@@ -4,7 +4,7 @@ import { UserController } from '../../web/controllers/user.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../../domain/entities/user.entity';
 import { UserRepositoryImpl } from '../repositories/user.repository.impl';
-import { UserMapperImpl } from '../../web/mappers/user/user-mapper.impl';
+import { UserMapperImpl } from '../../application/mappers/user/user-mapper.impl';
 import {
   User_Details_Service,
   User_Mapper,
