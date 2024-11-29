@@ -5,7 +5,7 @@ import { JwtService } from '../../application/services/jwt.service';
 import { Jwt_Service, Logger_Service, User_Details_Service } from '../../shared/tokens';
 import { UserDetailsService } from '../services/user-details.service';
 import { LoggerService } from '../../application/services/logger.service';
-import { ExtRequest } from '../../shared/types';
+import { ExtRequest, JwtToken } from '../../shared/types';
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
@@ -29,7 +29,7 @@ export class AuthMiddleware implements NestMiddleware {
 
       const token = req.headers.authorization.split(' ')[1];
 
-      const tokenPayload = await this.jwtService.validateToken(token, 'accessToken');
+      const tokenPayload = this.jwtService.validateToken(token, JwtToken.ACCESS_TOKEN);
       if (!tokenPayload) {
         req.user = null;
         this.logger.warn('AuthMiddleware: Invalid token');

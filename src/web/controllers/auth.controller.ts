@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  HttpCode,
   HttpStatus,
   Inject,
   Post,
@@ -20,6 +19,7 @@ import { loginDocs, logoutDocs, refreshTokensDocs } from '../docs/auth.docs';
 import { Auth_Service, Jwt_Service } from '../../shared/tokens';
 import { AuthService } from '../../application/services/auth.service';
 import { JwtService } from '../../application/services/jwt.service';
+import { JwtToken } from '../../shared/types';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -32,24 +32,30 @@ export class AuthController {
   ) {}
 
   @Post('/login')
-  @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe())
   @ApiDocs(loginDocs)
   public async login(@Body() dto: LoginUserDto, @Res() res: Response) {
     const response = await this.authService.login(dto);
-    const refreshToken = this.jwtService.createToken(response.id, response.email, 'refreshToken');
+    const refreshToken = this.jwtService.createToken(
+      response.id,
+      response.email,
+      JwtToken.REFRESH_TOKEN,
+    );
     this.setCookies(res, refreshToken);
 
     res.status(HttpStatus.OK).send(response);
   }
 
   @Post('/refresh')
-  @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @ApiDocs(refreshTokensDocs)
   public async refreshAccessToken(@Cookies('refreshToken') token: string, @Res() res: Response) {
     const response = await this.authService.refresh(token);
-    const refreshToken = this.jwtService.createToken(response.id, response.email, 'refreshToken');
+    const refreshToken = this.jwtService.createToken(
+      response.id,
+      response.email,
+      JwtToken.REFRESH_TOKEN,
+    );
     this.setCookies(res, refreshToken);
     res.status(HttpStatus.OK).send(response);
   }
@@ -59,13 +65,13 @@ export class AuthController {
   @ApiDocs(logoutDocs)
   @UseGuards(JwtAuthGuard)
   public async logout(@Res() res: Response) {
-    res.clearCookie('refreshToken');
+    res.clearCookie('refresh_token');
     res.setHeader('Authorization', '');
     res.status(HttpStatus.OK).send({});
   }
 
   private setCookies(res: Response, token: string) {
-    res.cookie('refreshToken', token, {
+    res.cookie('refresh_token', token, {
       httpOnly: true,
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });

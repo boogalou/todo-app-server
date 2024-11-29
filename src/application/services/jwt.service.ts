@@ -1,8 +1,8 @@
-import { TypeToken } from '../../infrastructure/services/impl/jwt.service.impl';
 import { JwtPayload } from 'jsonwebtoken';
+import { JwtToken } from '../../shared/types';
 
 export interface JwtService {
-  createToken(id: number, email: string, tokenType: TypeToken): string;
+  createToken(id: number, email: string, tokenType: JwtToken): string;
 
-  validateToken(token: string, tokenType: TypeToken): Promise<string | JwtPayload>;
+  validateToken(token: string, tokenType: JwtToken): string | JwtPayload;
 }

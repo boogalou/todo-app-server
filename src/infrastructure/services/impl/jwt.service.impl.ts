@@ -1,27 +1,36 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JsonWebTokenError, sign, TokenExpiredError, verify } from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '../../../application/services/jwt.service';
+import { JwtToken } from '../../../shared/types';
 
-export type TypeToken = 'accessToken' | 'refreshToken' | 'activationToken';
 const JWT_ACCESS_SECRET = 'JWT_ACCESS_SECRET';
 const JWT_REFRESH_SECRET = 'JWT_REFRESH_SECRET';
-const JWT_LINK_SECRET = 'JWT_LINK_SECRET';
+const JWT_URL_SECRET = 'JWT_URL_SECRET';
 
 @Injectable()
 export class JwtServiceImpl implements JwtService {
   constructor(private readonly configService: ConfigService) {}
 
-  async validateToken(token: string, tokenType: TypeToken) {
-    const secret =
-      tokenType === 'accessToken'
-        ? this.configService.getOrThrow(JWT_ACCESS_SECRET)
-        : tokenType === 'refreshToken'
-          ? this.configService.getOrThrow(JWT_REFRESH_SECRET)
-          : this.configService.getOrThrow(JWT_LINK_SECRET);
+  async validateToken(token: string, tokenType: JwtToken) {
+    let secret: string;
+
+    switch (tokenType) {
+      case JwtToken.ACCESS_TOKEN:
+        secret = this.configService.getOrThrow(JWT_ACCESS_SECRET);
+        break;
+      case JwtToken.REFRESH_TOKEN:
+        secret = this.configService.getOrThrow(JWT_REFRESH_SECRET);
+        break;
+      case JwtToken.URL_TOKEN:
+        secret = this.configService.getOrThrow(JWT_URL_SECRET);
+        break;
+      default:
+        throw new BadRequestException('Wrong token type');
+    }
 
     try {
-      return await verify(token, secret);
+      return verify(token, secret);
     } catch (err) {
       if (err instanceof TokenExpiredError) {
         throw new UnauthorizedException('Token has expired');
@@ -33,7 +42,7 @@ export class JwtServiceImpl implements JwtService {
     }
   }
 
-  createToken(userId: number, userEmail: string, tokenType: TypeToken) {
+  createToken(userId: number, userEmail: string, tokenType: JwtToken) {
     const payload = {
       sub: userId,
       email: userEmail,
@@ -46,22 +55,22 @@ export class JwtServiceImpl implements JwtService {
     });
   }
 
-  private getTokenClaims(tokenType: TypeToken) {
+  private getTokenClaims(tokenType: JwtToken) {
     switch (tokenType) {
-      case 'accessToken':
+      case JwtToken.ACCESS_TOKEN:
         return {
           secret: JWT_ACCESS_SECRET,
           expiresIn: this.configService.get('ACCESS_TOKEN_EXPIRE'),
         };
-      case 'refreshToken':
+      case JwtToken.REFRESH_TOKEN:
         return {
           secret: JWT_REFRESH_SECRET,
           expiresIn: this.configService.get('REFRESH_TOKEN_EXPIRE'),
         };
-      case 'activationToken':
+      case JwtToken.URL_TOKEN:
         return {
-          secret: JWT_LINK_SECRET,
-          expiresIn: this.configService.get('ACTIVATE_TOKEN_EXPIRE'),
+          secret: JWT_URL_SECRET,
+          expiresIn: this.configService.get('URL_TOKEN_EXPIRE'),
         };
       default:
         throw new Error('Invalid token type');

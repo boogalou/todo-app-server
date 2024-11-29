@@ -1,5 +1,4 @@
 import { Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { compare } from 'bcrypt';
 import { LoginUserDto } from '../../dto/auth/login-user.dto';
 import { AuthService } from '../auth.service';
 import {
@@ -15,6 +14,7 @@ import { AuthResponseDto } from '../../dto/auth/auth-response.dto';
 import { JwtService } from '../jwt.service';
 import { LoggerService } from '../logger.service';
 import { BcryptService } from '../bcrypt.service';
+import { JwtToken } from '../../../shared/types';
 
 @Injectable()
 export class AuthServiceImpl implements AuthService {
@@ -45,7 +45,7 @@ export class AuthServiceImpl implements AuthService {
     }
 
     const responseDto = this.authMapper.toDto(user);
-    const accessToken = this.jwtService.createToken(user.id, user.email, 'accessToken');
+    const accessToken = this.jwtService.createToken(user.id, user.email, JwtToken.ACCESS_TOKEN);
     this.logger.info(JSON.stringify(responseDto, null, 2));
     return { ...responseDto, accessToken } as AuthResponseDto;
   }
@@ -55,7 +55,7 @@ export class AuthServiceImpl implements AuthService {
       throw new NotFoundException('Token not found');
     }
 
-    const jwtPayload = await this.jwtService.validateToken(token, 'refreshToken');
+    const jwtPayload = this.jwtService.validateToken(token, JwtToken.REFRESH_TOKEN);
 
     const userId = Number(jwtPayload.sub);
     const user = await this.userService.getById(userId);
@@ -64,7 +64,7 @@ export class AuthServiceImpl implements AuthService {
       throw new NotFoundException(`User with ID ${userId} was not found.`);
     }
 
-    const accessToken = this.jwtService.createToken(user.id, user.email, 'accessToken');
+    const accessToken = this.jwtService.createToken(user.id, user.email, JwtToken.ACCESS_TOKEN);
 
     const responseDto = this.authMapper.toDto(user);
 
