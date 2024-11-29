@@ -1,5 +1,5 @@
 import { UserDetails } from '../../shared/types';
 
 export interface UserDetailsService {
-  findById(id: number): Promise<UserDetails>;
+  getById(id: number): Promise<UserDetails>;
 }

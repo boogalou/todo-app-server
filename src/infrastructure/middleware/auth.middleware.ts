@@ -29,7 +29,7 @@ export class AuthMiddleware implements NestMiddleware {
 
       const token = req.headers.authorization.split(' ')[1];
 
-      const tokenPayload = this.jwtService.validateToken(token, JwtToken.ACCESS_TOKEN);
+      const tokenPayload = await this.jwtService.validateToken(token, JwtToken.ACCESS_TOKEN);
       if (!tokenPayload) {
         req.user = null;
         this.logger.warn('AuthMiddleware: Invalid token');
@@ -37,7 +37,7 @@ export class AuthMiddleware implements NestMiddleware {
       }
 
       const userId = Number(tokenPayload.sub);
-      const userDetails = await this.userDetails.findById(userId);
+      const userDetails = await this.userDetails.getById(userId);
       if (!userDetails) {
         req.user = null;
         this.logger.warn(`AuthMiddleware: User not found for ID ${userId}`);

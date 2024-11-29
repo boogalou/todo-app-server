@@ -55,7 +55,7 @@ export class AuthServiceImpl implements AuthService {
       throw new NotFoundException('Token not found');
     }
 
-    const jwtPayload = this.jwtService.validateToken(token, JwtToken.REFRESH_TOKEN);
+    const jwtPayload = await this.jwtService.validateToken(token, JwtToken.REFRESH_TOKEN);
 
     const userId = Number(jwtPayload.sub);
     const user = await this.userService.getById(userId);

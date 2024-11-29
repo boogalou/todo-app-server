@@ -30,7 +30,7 @@ export class JwtServiceImpl implements JwtService {
     }
 
     try {
-      return verify(token, secret);
+      return await verify(token, secret);
     } catch (err) {
       if (err instanceof TokenExpiredError) {
         throw new UnauthorizedException('Token has expired');

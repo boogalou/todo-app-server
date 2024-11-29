@@ -12,17 +12,17 @@ export class RefreshTokenMiddleware implements NestMiddleware {
   ) {}
 
   async use(req: ExtRequest, res: Response, next: NextFunction) {
-    const token = req.cookies[JwtToken.REFRESH_TOKEN];
-
+    const token = req.cookies['refresh_token'];
+    console.log(token);
     if (!token) {
       return res.status(403).json({ message: 'Access denied. Token not found.' });
     }
 
     try {
-      this.jwtService.validateToken(token, JwtToken.REFRESH_TOKEN);
+      await this.jwtService.validateToken(token, JwtToken.REFRESH_TOKEN);
       next();
     } catch (err) {
-      res.clearCookie(JwtToken.REFRESH_TOKEN);
+      res.clearCookie('refresh_token');
       return res.status(403).json({ message: 'Access denied. Token expired.' });
     }
   }

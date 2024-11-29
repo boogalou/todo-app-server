@@ -11,7 +11,7 @@ export class UserDetailsServiceImpl implements UserDetailsService {
     private readonly userRepository: UserRepository,
   ) {}
 
-  public async findById(id: number): Promise<UserDetails> {
+  public async getById(id: number): Promise<UserDetails> {
     const user = await this.userRepository.findById(id);
 
     return {

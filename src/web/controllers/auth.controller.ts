@@ -49,7 +49,7 @@ export class AuthController {
   @Post('/refresh')
   @ApiBearerAuth()
   @ApiDocs(refreshTokensDocs)
-  public async refreshAccessToken(@Cookies('refreshToken') token: string, @Res() res: Response) {
+  public async refreshAccessToken(@Cookies('refresh_token') token: string, @Res() res: Response) {
     const response = await this.authService.refresh(token);
     const refreshToken = this.jwtService.createToken(
       response.id,
