@@ -10,11 +10,15 @@ export class TaskMapperImpl implements TaskMapper {
     return plainToInstance(TaskResponseDto, entity, { excludeExtraneousValues: true });
   }
 
-  toEntityFromCreate(dto: CreateTaskDto): Task {
+  toEntity(dto: CreateTaskDto): Task {
     return plainToInstance(Task, dto);
   }
 
-  toEntityFromUpdate(dto: UpdateTaskDto): Task {
-    return plainToInstance(Task, dto);
+  mergeUpdate(dto: UpdateTaskDto, entity: Task): Task {
+    console.log('mergeUpdate in: ', dto);
+    const updatedFields = plainToInstance(Task, dto, { excludeExtraneousValues: true });
+    const result = Object.assign(entity, updatedFields);
+    console.log('mergeUpdate out: ', result);
+    return result;
   }
 }

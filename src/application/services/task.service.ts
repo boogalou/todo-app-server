@@ -6,15 +6,15 @@ import { TaskResponseDto } from '../dto/task/TaskResponse.dto';
 export interface TaskService {
   create(dto: CreateTaskDto, id: number): Promise<TaskResponseDto>;
 
-  getById(id: number): Promise<Task | null>;
-
-  getAll(userId: number): Promise<Task[]>;
-
-  update(dto: UpdateTaskDto): Promise<Task>;
-
-  save(entity: Task): Promise<Task>;
+  update(dto: UpdateTaskDto, id: number): Promise<TaskResponseDto>;
 
   delete(taskId: number, userId: number): Promise<boolean>;
+
+  getById(id: number): Promise<Task>;
+
+  getAll(userId: number): Promise<TaskResponseDto[]>;
+
+  save(entity: Task): Promise<Task>;
 
   isOwner(userId: number, resourceId: number): Promise<boolean>;
 }

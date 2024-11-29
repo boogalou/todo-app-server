@@ -20,11 +20,11 @@ export class ResourceOwnership implements CanActivate {
     const userId = request.user.id;
     const resourceId = Number(request.params.id);
 
-    if (request.baseUrl.includes('tasks')) {
+    if (request.url.includes('tasks')) {
       return await this.taskService.isOwner(userId, resourceId);
     }
 
-    if (request.baseUrl.includes('settings')) {
+    if (request.url.includes('settings')) {
       return await this.settingsService.isOwner(userId, resourceId);
     }
 

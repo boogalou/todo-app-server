@@ -4,7 +4,7 @@ import { TaskResponseDto } from '../../dto/task/TaskResponse.dto';
 import { UpdateTaskDto } from '../../dto/task/update-task.dto';
 
 export interface TaskMapper {
-  toEntityFromCreate(dto: CreateTaskDto): Task;
-  toEntityFromUpdate(dto: UpdateTaskDto): Task;
+  toEntity(dto: CreateTaskDto): Task;
+  mergeUpdate(dto: UpdateTaskDto, entity: Task): Task;
   toDto(entity: Task): TaskResponseDto;
 }

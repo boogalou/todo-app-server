@@ -40,5 +40,5 @@ export class Task {
 
   @ManyToOne(() => User, (user) => user.tasks, { lazy: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
-  user: User;
+  user: Promise<User>;
 }

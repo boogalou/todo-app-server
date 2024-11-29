@@ -10,6 +10,7 @@ import LoggerModule from './infrastructure/di/logger.module';
 import SettingsModule from './infrastructure/di/settings.module';
 import TaskModule from './infrastructure/di/task.module';
 import UserModule from './infrastructure/di/user.module';
+import { OwnershipModule } from './infrastructure/di/ownership.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import UserModule from './infrastructure/di/user.module';
     SettingsModule,
     TaskModule,
     UserModule,
+    OwnershipModule,
   ],
   providers: [Logger],
 })

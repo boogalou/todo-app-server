@@ -4,6 +4,7 @@ import { Task } from '../../domain/entities/task.entity';
 import { Repository } from 'typeorm';
 import { TaskRepository } from '../../domain/repositories/task.repository';
 import { Logger_Service } from '../../shared/tokens';
+import { UpdateTaskDto } from '../../application/dto/task/update-task.dto';
 
 @Injectable()
 export class TaskRepositoryImpl implements TaskRepository {
@@ -14,7 +15,7 @@ export class TaskRepositoryImpl implements TaskRepository {
     private readonly logger: LoggerService,
   ) {}
 
-  public async delete(entity: Task): Promise<Task> {
+  public async delete(entity: Task) {
     try {
       return await this.repository.remove(entity);
     } catch (err) {
@@ -28,7 +29,7 @@ export class TaskRepositoryImpl implements TaskRepository {
     }
   }
 
-  public async findAll(userId: number): Promise<Task[] | null> {
+  public async findAll(userId: number) {
     try {
       return await this.repository.find({ where: { user: { id: userId } } });
     } catch (err) {
@@ -42,7 +43,7 @@ export class TaskRepositoryImpl implements TaskRepository {
     }
   }
 
-  public async findById(id: number): Promise<Task | null> {
+  public async findById(id: number) {
     try {
       return await this.repository.findOne({ where: { id } });
     } catch (err) {
@@ -56,7 +57,21 @@ export class TaskRepositoryImpl implements TaskRepository {
     }
   }
 
-  public async save(entity: Task): Promise<Task> {
+  public async update(id: number, dto: UpdateTaskDto) {
+    try {
+      return await this.repository.update(id, dto);
+    } catch (err) {
+      this.logger.error(
+        `Error occurred while updating task. Task details: ${JSON.stringify(dto)}. Reason: ${err.message}`,
+        err.stack,
+      );
+      throw new InternalServerErrorException(
+        `Unable to update task. Please check the provided data and try again.`,
+      );
+    }
+  }
+
+  public async save(entity: Task) {
     try {
       return await this.repository.save(entity);
     } catch (err) {
