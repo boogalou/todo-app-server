@@ -84,4 +84,18 @@ export class TaskRepositoryImpl implements TaskRepository {
       );
     }
   }
+
+  public async isExists(id: number) {
+    try {
+      return await this.repository.exists({ where: { id } });
+    } catch (err) {
+      this.logger.error(
+        `Error occurred while checking existence of task with ID ${id}. Reason: ${err.message}`,
+        err.stack,
+      );
+      throw new InternalServerErrorException(
+        `Unable to check existence of task with ID ${id}. Please try again later.`,
+      );
+    }
+  }
 }

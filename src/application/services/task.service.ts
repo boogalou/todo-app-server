@@ -8,11 +8,13 @@ export interface TaskService {
 
   update(dto: UpdateTaskDto, id: number): Promise<TaskResponseDto>;
 
-  delete(taskId: number, userId: number): Promise<boolean>;
+  delete(id: number): Promise<void>;
 
   getById(id: number): Promise<Task>;
 
-  getAll(userId: number): Promise<TaskResponseDto[]>;
+  getAll(email: string, userId: number): Promise<TaskResponseDto[]>;
+
+  isExists(id: number): Promise<boolean>;
 
   save(entity: Task): Promise<Task>;
 

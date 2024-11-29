@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Inject, Injectable } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Logger_Service, Task_Mapper, Task_Repository, User_Service } from '../../../shared/tokens';
 import { TaskRepository } from '../../../domain/repositories/task.repository';
 import { TaskService } from '../task.service';
@@ -24,12 +24,8 @@ export class TaskServiceImpl implements TaskService {
 
   public async create(dto: CreateTaskDto, userId: number) {
     const taskEntity = this.taskMapper.toEntity(dto);
+
     const user = await this.userService.getById(userId);
-
-    if (!user) {
-      throw new BadRequestException('User not found');
-    }
-
     taskEntity.user = Promise.resolve(user);
 
     const savedTask = await this.save(taskEntity);
@@ -45,15 +41,15 @@ export class TaskServiceImpl implements TaskService {
     return this.taskMapper.toDto(updatedTask);
   }
 
-  public async delete(taskId: number, userId: number): Promise<boolean> {
-    return false;
+  public async delete(id: number) {
+    const taskEntity = await this.getById(id);
+
+    await this.repository.delete(taskEntity);
   }
 
-  public async getAll(userId: number) {
-    const user = await this.userService.getById(userId);
-
-    if (!user) {
-      throw new BadRequestException('User not found');
+  public async getAll(email: string, userId: number) {
+    if (!(await this.userService.isExists(email))) {
+      throw new NotFoundException('User not found');
     }
 
     const taskList = await this.repository.findAll(userId);
@@ -61,29 +57,29 @@ export class TaskServiceImpl implements TaskService {
     return taskList.map((task) => this.taskMapper.toDto(task));
   }
 
-  public async getById(id: number): Promise<Task> {
+  public async getById(id: number) {
     const taskEntity = await this.repository.findById(id);
 
     if (!taskEntity) {
-      throw new BadRequestException('Task not found');
+      throw new NotFoundException(`Task with ID ${id} not found`);
     }
 
     return taskEntity;
   }
 
-  public async save(entity: Task): Promise<Task> {
+  public async save(entity: Task) {
     const savedTask = await this.repository.save(entity);
     this.logger.info(`Task with ID ${savedTask.id} saved successfully.`);
 
     return savedTask;
   }
 
-  public async isOwner(userId: number, resourceId: number): Promise<boolean> {
-    const task = await this.getById(resourceId);
+  public async isExists(id: number) {
+    return await this.repository.isExists(id);
+  }
 
-    if (!task) {
-      throw new ForbiddenException('Task not found or access denied');
-    }
+  public async isOwner(userId: number, resourceId: number) {
+    const task = await this.getById(resourceId);
 
     const user = await task.user;
 

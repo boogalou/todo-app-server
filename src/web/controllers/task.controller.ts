@@ -42,7 +42,7 @@ export class TaskController {
   @HttpCode(HttpStatus.OK)
   @ApiDocs(getTasksDocs)
   async getTasks(@UserAuth() user: UserDetails) {
-    return await this.taskService.getAll(user.id);
+    return await this.taskService.getAll(user.email, user.id);
   }
 
   @Post()
@@ -53,8 +53,8 @@ export class TaskController {
   }
 
   @Patch('/:id')
-  @UseGuards(ResourceOwnership)
   @HttpCode(HttpStatus.OK)
+  @UseGuards(ResourceOwnership)
   @ApiDocs(updateTaskDocs)
   async updateTask(
     @Param('id', ParseIntPipe) taskId: number,
@@ -65,8 +65,9 @@ export class TaskController {
 
   @Delete('/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(ResourceOwnership)
   @ApiDocs(deleteTaskDocs)
-  async deleteTask(@UserAuth() user: UserDetails, @Param('taskId', ParseIntPipe) taskId: number) {
-    await this.taskService.delete(taskId, user.id);
+  async deleteTask(@Param('id', ParseIntPipe) taskId: number) {
+    await this.taskService.delete(taskId);
   }
 }

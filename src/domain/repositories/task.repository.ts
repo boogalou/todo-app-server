@@ -9,6 +9,8 @@ export interface TaskRepository {
 
   update(id: number, dto: UpdateTaskDto): Promise<UpdateResult>;
 
+  isExists(id: number): Promise<boolean>;
+
   save(entity: Task): Promise<Task>;
 
   delete(entity: Task): Promise<Task>;

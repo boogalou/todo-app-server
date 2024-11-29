@@ -11,6 +11,8 @@ export interface UserService {
 
   getByEmail(id: string): Promise<User>;
 
+  isExists(email: string): Promise<boolean>;
+
   update(dto: UpdateUserDto): Promise<User>;
 
   delete(id: number): Promise<boolean>;

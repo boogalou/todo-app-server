@@ -1,4 +1,4 @@
-import { ConflictException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable } from '@nestjs/common';
 import { UserRepository } from '../../../domain/repositories/user.repository';
 import { UserService } from '../user.service';
 import { CreateUserDto } from '../../dto/user/create-user.dto';
@@ -19,7 +19,7 @@ export class UserServiceImpl implements UserService {
     private readonly bcryptService: BcryptService,
   ) {}
 
-  public async create(dto: CreateUserDto): Promise<User> {
+  public async create(dto: CreateUserDto) {
     if (await this.repository.isExists(dto.email)) {
       throw new ConflictException('User already exists');
     }
@@ -30,29 +30,45 @@ export class UserServiceImpl implements UserService {
     return this.save(user);
   }
 
-  public async delete(id: number): Promise<boolean> {
+  public async delete(id: number) {
     return await this.repository.softDelete(id);
   }
 
-  public async getByEmail(email: string): Promise<User> {
-    return this.repository.findByEmail(email);
+  public async getByEmail(email: string) {
+    const userEntity = await this.repository.findByEmail(email);
+
+    if (!userEntity) {
+      throw new BadRequestException('User not found');
+    }
+
+    return userEntity;
   }
 
-  public async getById(id: number): Promise<User> {
-    return await this.repository.findById(id);
+  public async getById(id: number) {
+    const userEntity = await this.repository.findById(id);
+
+    if (!userEntity) {
+      throw new BadRequestException('User not found');
+    }
+
+    return userEntity;
   }
 
-  public async update(dto: UpdateUserDto): Promise<User> {
+  public async isExists(email: string) {
+    return await this.repository.isExists(email);
+  }
+
+  public async update(dto: UpdateUserDto) {
     const user = this.userMapper.toEntityFromUpdate(dto);
 
     return await this.save(user);
   }
 
-  public async save(user: User): Promise<User> {
+  public async save(user: User) {
     return await this.repository.save(user);
   }
 
-  public async isOwner(userId: number, resourceId: number): Promise<boolean> {
+  public async isOwner(userId: number, resourceId: number) {
     const user = await this.getById(resourceId);
     return user && userId === user.id;
   }
