@@ -6,7 +6,7 @@ import { TaskResponseDto } from '../dto/task/TaskResponse.dto';
 export interface TaskService {
   create(dto: CreateTaskDto, id: number): Promise<TaskResponseDto>;
 
-  update(dto: UpdateTaskDto, id: number): Promise<TaskResponseDto>;
+  update(id: number, dto: UpdateTaskDto): Promise<TaskResponseDto>;
 
   delete(id: number): Promise<void>;
 

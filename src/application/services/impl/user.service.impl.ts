@@ -5,8 +5,14 @@ import { CreateUserDto } from '../../dto/user/create-user.dto';
 import { User } from '../../../domain/entities/user.entity';
 import { UserMapper } from '../../mappers/user/user.mapper';
 import { UpdateUserDto } from '../../dto/user/update-user.dto';
-import { Bcrypt_Service, User_Mapper, User_Repository } from '../../../shared/tokens';
+import {
+  Bcrypt_Service,
+  Logger_Service,
+  User_Mapper,
+  User_Repository,
+} from '../../../shared/tokens';
 import { BcryptService } from '../bcrypt.service';
+import { LoggerService } from '../logger.service';
 
 @Injectable()
 export class UserServiceImpl implements UserService {
@@ -17,21 +23,27 @@ export class UserServiceImpl implements UserService {
     private readonly userMapper: UserMapper,
     @Inject(Bcrypt_Service)
     private readonly bcryptService: BcryptService,
+    @Inject(Logger_Service)
+    private readonly logger: LoggerService,
   ) {}
 
   public async create(dto: CreateUserDto) {
+    this.logger.info(`Attempt to create user with Email: ${dto.email}`);
+
     if (await this.repository.isExists(dto.email)) {
+      this.logger.warn(`User creation failed. Email ${dto.email} already exists.`);
       throw new ConflictException('User already exists');
     }
 
     const user = this.userMapper.toEntityFromCreate(dto);
     user.password = await this.bcryptService.hash(dto.password);
 
+    this.logger.info(`User with Email ${dto.email} created successfully with ID: ${user.id}`);
     return this.save(user);
   }
 
   public async delete(id: number) {
-    return await this.repository.softDelete(id);
+    return null;
   }
 
   public async getByEmail(email: string) {

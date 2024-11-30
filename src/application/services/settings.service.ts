@@ -6,9 +6,9 @@ export interface SettingsService {
 
   getByUserId(id: number): Promise<Settings>;
 
-  save(dto: SettingsDto): Promise<Settings>;
+  update(userId: number, entity: SettingsDto): Promise<SettingsDto>;
 
-  update(entity: SettingsDto): Promise<SettingsDto>;
+  isExists(id: number): Promise<boolean>;
 
   isOwner(userId: number, resourceId: number): Promise<boolean>;
 }

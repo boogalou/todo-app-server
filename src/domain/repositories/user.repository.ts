@@ -5,9 +5,9 @@ export interface UserRepository {
 
   findByEmail(email: string): Promise<User | null>;
 
-  save(entity: User): Promise<User>;
+  save(user: User): Promise<User>;
 
   isExists(email: string): Promise<boolean>;
 
-  softDelete(id: number): Promise<boolean>;
+  delete(user: User): Promise<User>;
 }

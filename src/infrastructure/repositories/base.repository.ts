@@ -1,11 +1,10 @@
-import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
+import { DatabaseException } from '../exceptions/databaseException';
 
-@Injectable()
-export abstract class BaseRepository<T> {
-  protected constructor(protected readonly repository: Repository<T>) {}
+export abstract class BaseRepository<E> {
+  protected constructor(protected readonly repository: Repository<E>) {}
 
-  protected async commonHandler<U>(
+  protected async handler<U>(
     method: () => Promise<U>,
     logMessage: string,
     entityId?: number,
@@ -14,7 +13,7 @@ export abstract class BaseRepository<T> {
       return await method();
     } catch (err) {
       const message = `${logMessage} ${entityId ? `ID: ${entityId}` : ''}. Reason: ${err.message}`;
-      throw new Error(`Database operation failed. ${err.message}`);
+      throw new DatabaseException(`Database operation failed. ${message}`);
     }
   }
 }

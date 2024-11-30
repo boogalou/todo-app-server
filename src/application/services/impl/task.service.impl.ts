@@ -26,14 +26,19 @@ export class TaskServiceImpl implements TaskService {
     const taskEntity = this.taskMapper.toEntity(dto);
 
     const user = await this.userService.getById(userId);
-    taskEntity.user = Promise.resolve(user);
+
+    taskEntity.user = user;
 
     const savedTask = await this.save(taskEntity);
 
     return this.taskMapper.toDto(savedTask);
   }
 
-  public async update(dto: UpdateTaskDto, taskId: number) {
+  public async update(taskId: number, dto: UpdateTaskDto) {
+    if (!(await this.isExists(taskId))) {
+      throw new NotFoundException('Task not found');
+    }
+
     await this.repository.update(taskId, dto);
 
     const updatedTask = await this.getById(taskId);
@@ -75,15 +80,13 @@ export class TaskServiceImpl implements TaskService {
   }
 
   public async isExists(id: number) {
-    return await this.repository.isExists(id);
+    return this.repository.isExists(id);
   }
 
   public async isOwner(userId: number, resourceId: number) {
     const task = await this.getById(resourceId);
 
-    const user = await task.user;
-
-    if (userId !== user.id) {
+    if (userId !== task.user.id) {
       throw new ForbiddenException("You don't have enough permissions for this action");
     }
 

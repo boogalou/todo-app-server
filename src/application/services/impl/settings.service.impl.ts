@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { SettingsService } from '../settings.service';
 import { SettingsRepository } from '../../../domain/repositories/settings.repository';
 import { Settings_Mapper, Settings_Repository } from '../../../shared/tokens';
@@ -15,26 +15,44 @@ export class SettingsServiceImpl implements SettingsService {
   ) {}
 
   public async getById(id: number) {
-    return await this.repository.findById(id);
+    const settings = await this.repository.findById(id);
+
+    if (!settings) {
+      throw new NotFoundException('Settings not found');
+    }
+
+    return settings;
   }
 
   public async getByUserId(userId: number) {
-    return await this.repository.findByUserId(userId);
+    const settings = await this.repository.findByUserId(userId);
+
+    if (!settings) {
+      throw new NotFoundException('Settings not found');
+    }
+
+    return settings;
   }
 
-  public async save(dto: SettingsDto) {
-    const entity = this.settingsMapper.toEntity(dto);
-    return await this.repository.save(entity);
-  }
+  public async update(userId: number, dto: SettingsDto) {
+    if (!(await this.isExists(dto.id))) {
+      throw new NotFoundException('Task not found');
+    }
 
-  public async update(dto: SettingsDto) {
-    const updatedSettings = await this.save(dto);
+    await this.repository.update(userId, dto);
+
+    const updatedSettings = await this.getById(dto.id);
+
     return this.settingsMapper.toDto(updatedSettings);
+  }
+
+  public async isExists(id: number) {
+    return this.repository.isExists(id);
   }
 
   public async isOwner(userId: number, settingsId: number) {
     const settings = await this.getById(settingsId);
 
-    return settings && userId === settings.user.id;
+    return userId === settings.user.id;
   }
 }

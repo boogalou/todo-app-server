@@ -15,7 +15,7 @@ export class Settings {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'language', enum: Lang, default: Lang.ENG, nullable: false })
+  @Column({ name: 'language', enum: Lang, default: Lang.ENGLISH, nullable: false })
   language: Lang;
 
   @Column({ name: 'theme', enum: Theme, default: Theme.SYSTEM, nullable: false })
@@ -24,7 +24,7 @@ export class Settings {
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp with time zone' })
   updatedAt: Date;
 
-  @OneToOne(() => User, (user) => user.settings, { lazy: true, onDelete: 'CASCADE' })
+  @OneToOne(() => User, (user) => user.settings, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   user: User;
 }

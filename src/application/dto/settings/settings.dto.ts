@@ -1,7 +1,6 @@
 import { IsNotEmpty } from 'class-validator';
-
-type Lang = 'eng' | 'rus';
-type Theme = 'system' | 'light' | 'dark';
+import { Lang } from '../../../domain/enums/lang.enum';
+import { Theme } from '../../../domain/enums/theme.enum';
 
 export class SettingsDto {
   @IsNotEmpty()
