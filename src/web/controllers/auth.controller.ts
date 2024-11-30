@@ -22,7 +22,7 @@ import { JwtService } from '../../application/services/jwt.service';
 import { JwtToken } from '../../shared/types';
 
 @ApiTags('auth')
-@Controller('auth')
+@Controller('/auth')
 export class AuthController {
   constructor(
     @Inject(Auth_Service)

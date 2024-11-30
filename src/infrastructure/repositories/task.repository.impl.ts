@@ -1,101 +1,63 @@
-import { Inject, Injectable, InternalServerErrorException, LoggerService } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Task } from '../../domain/entities/task.entity';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { TaskRepository } from '../../domain/repositories/task.repository';
-import { Logger_Service } from '../../shared/tokens';
 import { UpdateTaskDto } from '../../application/dto/task/update-task.dto';
+import { BaseRepository } from './base-repository';
 
 @Injectable()
-export class TaskRepositoryImpl implements TaskRepository {
+export class TaskRepositoryImpl extends BaseRepository<Task> implements TaskRepository {
   constructor(
     @InjectRepository(Task)
-    private readonly repository: Repository<Task>,
-    @Inject(Logger_Service)
-    private readonly logger: LoggerService,
-  ) {}
-
-  public async delete(entity: Task) {
-    try {
-      return await this.repository.remove(entity);
-    } catch (err) {
-      this.logger.error(
-        `Error occurred while deleting task with ID ${entity.id}. Reason: ${err.message}`,
-        err.stack,
-      );
-      throw new InternalServerErrorException(
-        `Unable to delete task. Task ID: ${entity.id}. Please try again later.`,
-      );
-    }
+    readonly repository: Repository<Task>,
+  ) {
+    super(repository);
   }
 
-  public async findAll(userId: number) {
-    try {
-      return await this.repository.find({ where: { user: { id: userId } } });
-    } catch (err) {
-      this.logger.error(
-        `Error occurred while retrieving tasks for user with ID ${userId}. Reason: ${err.message}`,
-        err.stack,
-      );
-      throw new InternalServerErrorException(
-        `Unable to retrieve tasks for user with ID ${userId}. Please try again later.`,
-      );
-    }
+  public async delete(entity: Task): Promise<Task> {
+    return this.commonHandler(
+      () => this.repository.remove(entity),
+      'Error occurred while deleting task',
+      entity.id,
+    );
   }
 
-  public async findById(id: number) {
-    try {
-      return await this.repository.findOne({ where: { id } });
-    } catch (err) {
-      this.logger.error(
-        `Error occurred while retrieving task with ID ${id}. Reason: ${err.message}`,
-        err.stack,
-      );
-      throw new InternalServerErrorException(
-        `Unable to retrieve task with ID ${id}. Please try again later.`,
-      );
-    }
+  public async findAll(userId: number): Promise<Task[]> {
+    return this.commonHandler(
+      () => this.repository.find({ where: { user: { id: userId } } }),
+      `Error occurred while retrieving tasks for user`,
+      userId,
+    );
   }
 
-  public async update(id: number, dto: UpdateTaskDto) {
-    try {
-      return await this.repository.update(id, dto);
-    } catch (err) {
-      this.logger.error(
-        `Error occurred while updating task. Task details: ${JSON.stringify(dto)}. Reason: ${err.message}`,
-        err.stack,
-      );
-      throw new InternalServerErrorException(
-        `Unable to update task. Please check the provided data and try again.`,
-      );
-    }
+  public async findById(id: number): Promise<Task> {
+    return this.commonHandler(
+      () => this.repository.findOne({ where: { id } }),
+      'Error occurred while retrieving task',
+      id,
+    );
   }
 
-  public async save(entity: Task) {
-    try {
-      return await this.repository.save(entity);
-    } catch (err) {
-      this.logger.error(
-        `Error occurred while saving task. Task details: ${JSON.stringify(entity)}. Reason: ${err.message}`,
-        err.stack,
-      );
-      throw new InternalServerErrorException(
-        `Unable to save task. Please check the provided data and try again.`,
-      );
-    }
+  public async update(id: number, dto: UpdateTaskDto): Promise<UpdateResult> {
+    return this.commonHandler(
+      () => this.repository.update(id, dto),
+      'Error occurred while updating task',
+    );
   }
 
-  public async isExists(id: number) {
-    try {
-      return await this.repository.exists({ where: { id } });
-    } catch (err) {
-      this.logger.error(
-        `Error occurred while checking existence of task with ID ${id}. Reason: ${err.message}`,
-        err.stack,
-      );
-      throw new InternalServerErrorException(
-        `Unable to check existence of task with ID ${id}. Please try again later.`,
-      );
-    }
+  public async save(entity: Task): Promise<Task> {
+    return this.commonHandler(
+      () => this.repository.save(entity),
+      'Error occurred while saving task',
+    );
+  }
+
+  public async isExists(id: number): Promise<boolean> {
+    return this.commonHandler(
+      () => this.repository.exists({ where: { id } }),
+      'Error occurred while checking existence of task',
+      id,
+    );
   }
 }
