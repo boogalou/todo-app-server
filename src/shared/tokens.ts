@@ -25,3 +25,5 @@ export const Settings_Mapper = Symbol('SETTINGS_MAPPER');
 export const Logger_Service = Symbol('LOGGER_SERVICE');
 
 export const Bcrypt_Service = Symbol('BCRYPT_SERVICE');
+
+export const Formatter_Service = Symbol('FORMATER_SERVICE');

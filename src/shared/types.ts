@@ -1,10 +1,10 @@
 import { Request } from 'express';
 
-export interface UserDetails {
+export type UserDetails = {
   id: number;
   username: string;
   email: string;
-}
+};
 
 export enum JwtToken {
   ACCESS_TOKEN = 'ACCESS_TOKEN',
@@ -15,3 +15,11 @@ export enum JwtToken {
 export interface ExtRequest extends Request {
   user: UserDetails | null;
 }
+
+export type ExceptionResponse = {
+  statusCode: number;
+  message: string;
+  errorCode: string;
+  timestamp: string;
+  path: string;
+};

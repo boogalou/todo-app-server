@@ -1,4 +1,10 @@
-import { BadRequestException, ConflictException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { UserRepository } from '../../../domain/repositories/user.repository';
 import { UserService } from '../user.service';
 import { CreateUserDto } from '../../dto/user/create-user.dto';
@@ -50,7 +56,7 @@ export class UserServiceImpl implements UserService {
     const userEntity = await this.repository.findByEmail(email);
 
     if (!userEntity) {
-      throw new BadRequestException('User not found');
+      throw new NotFoundException('User not found');
     }
 
     return userEntity;
@@ -60,7 +66,7 @@ export class UserServiceImpl implements UserService {
     const userEntity = await this.repository.findById(id);
 
     if (!userEntity) {
-      throw new BadRequestException('User not found');
+      throw new NotFoundException('User not found');
     }
 
     return userEntity;

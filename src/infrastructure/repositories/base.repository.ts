@@ -1,5 +1,5 @@
 import { Repository } from 'typeorm';
-import { DatabaseException } from '../exceptions/databaseException';
+import { InternalServerErrorException } from '@nestjs/common';
 
 export abstract class BaseRepository<E> {
   protected constructor(protected readonly repository: Repository<E>) {}
@@ -13,7 +13,7 @@ export abstract class BaseRepository<E> {
       return await method();
     } catch (err) {
       const message = `${logMessage} ${entityId ? `ID: ${entityId}` : ''}. Reason: ${err.message}`;
-      throw new DatabaseException(`Database operation failed. ${message}`);
+      throw new InternalServerErrorException(`Database operation failed. ${message}`);
     }
   }
 }

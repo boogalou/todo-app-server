@@ -1,45 +1,32 @@
-import {
-  ArgumentsHost,
-  BadRequestException,
-  Catch,
-  ExceptionFilter,
-  HttpException,
-  Inject,
-} from '@nestjs/common';
-import { Request, Response } from 'express';
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, Inject } from '@nestjs/common';
 import { LoggerService } from '../../application/services/logger.service';
-import { Logger_Service } from '../../shared/tokens';
+import { Formatter_Service, Logger_Service } from '../../shared/tokens';
+import { ExceptionFormatterService } from '../services/exception-formatter.service';
+import { ExtRequest } from '../../shared/types';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
   constructor(
     @Inject(Logger_Service)
     private readonly logger: LoggerService,
+    @Inject(Formatter_Service)
+    private readonly exceptionFormatterService: ExceptionFormatterService,
   ) {}
 
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
-    const response = ctx.getResponse<Response>();
-    const request = ctx.getRequest<Request>();
-    const status = exception.getStatus();
-    let message = exception.message;
-    const cause = exception.cause;
+    const response = ctx.getResponse();
+    const request = ctx.getRequest() as ExtRequest;
 
-    if (exception instanceof BadRequestException) {
-      const validationErrors = exception.getResponse()['message'];
-      if (validationErrors) {
-        message = validationErrors;
-      }
-    }
+    const formattedResponse = this.exceptionFormatterService.formatExceptionResponse(
+      exception,
+      request,
+    );
 
-    this.logger.error(`${request.method} ${request.originalUrl} ${status} ${message} `);
+    this.logger.error(
+      `${request.method} ${request.originalUrl} ${formattedResponse.statusCode} ${formattedResponse.message} `,
+    );
 
-    response.status(status).json({
-      statusCode: status,
-      message: message,
-      timestamp: new Date().toISOString(),
-      path: request.url,
-      cause: cause,
-    });
+    response.status(formattedResponse.statusCode).json(formattedResponse);
   }
 }

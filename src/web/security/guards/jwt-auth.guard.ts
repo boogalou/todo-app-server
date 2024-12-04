@@ -8,6 +8,6 @@ export class JwtAuthGuard implements CanActivate {
     if (request.user) {
       return true;
     }
-    throw new UnauthorizedException('unauthorized');
+    throw new UnauthorizedException('Unauthorized');
   }
 }

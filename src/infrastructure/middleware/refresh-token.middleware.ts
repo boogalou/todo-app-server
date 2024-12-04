@@ -1,4 +1,4 @@
-import { Inject, Injectable, NestMiddleware } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Response } from 'express';
 import { ExtRequest, JwtToken } from '../../shared/types';
 import { Jwt_Service } from '../../shared/tokens';
@@ -15,7 +15,7 @@ export class RefreshTokenMiddleware implements NestMiddleware {
     const token = req.cookies['refresh_token'];
     console.log(token);
     if (!token) {
-      return res.status(403).json({ message: 'Access denied. Token not found.' });
+      throw new ForbiddenException('Access denied. Token not found.');
     }
 
     try {
@@ -23,7 +23,7 @@ export class RefreshTokenMiddleware implements NestMiddleware {
       next();
     } catch (err) {
       res.clearCookie('refresh_token');
-      return res.status(403).json({ message: 'Access denied. Token expired.' });
+      throw new ForbiddenException('Access denied. Token expired.');
     }
   }
 }

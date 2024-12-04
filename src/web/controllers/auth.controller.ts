@@ -16,10 +16,8 @@ import { LoginUserDto } from '../../application/dto/auth/login-user.dto';
 import { JwtAuthGuard } from '../security/guards/jwt-auth.guard';
 import { ApiDocs } from '../../shared/api-docs';
 import { loginDocs, logoutDocs, refreshTokensDocs } from '../docs/auth.docs';
-import { Auth_Service, Jwt_Service } from '../../shared/tokens';
+import { Auth_Service } from '../../shared/tokens';
 import { AuthService } from '../../application/services/auth.service';
-import { JwtService } from '../../application/services/jwt.service';
-import { JwtToken } from '../../shared/types';
 
 @ApiTags('auth')
 @Controller('/auth')
@@ -27,37 +25,34 @@ export class AuthController {
   constructor(
     @Inject(Auth_Service)
     private readonly authService: AuthService,
-    @Inject(Jwt_Service)
-    private readonly jwtService: JwtService,
   ) {}
 
   @Post('/login')
   @UsePipes(new ValidationPipe())
   @ApiDocs(loginDocs)
   public async login(@Body() dto: LoginUserDto, @Res() res: Response) {
-    const response = await this.authService.login(dto);
-    const refreshToken = this.jwtService.createToken(
-      response.id,
-      response.email,
-      JwtToken.REFRESH_TOKEN,
-    );
-    this.setCookies(res, refreshToken);
+    console.log(dto);
+    const authDto = await this.authService.login(dto);
 
-    res.status(HttpStatus.OK).send(response);
+    this.setCookies(res, authDto.refreshToken);
+
+    res.status(HttpStatus.OK).send({
+      token_type: 'Bearer',
+      accessToken: authDto.accessToken,
+    });
   }
 
   @Post('/refresh')
   @ApiBearerAuth()
   @ApiDocs(refreshTokensDocs)
   public async refreshAccessToken(@Cookies('refresh_token') token: string, @Res() res: Response) {
-    const response = await this.authService.refresh(token);
-    const refreshToken = this.jwtService.createToken(
-      response.id,
-      response.email,
-      JwtToken.REFRESH_TOKEN,
-    );
-    this.setCookies(res, refreshToken);
-    res.status(HttpStatus.OK).send(response);
+    const authDto = await this.authService.refresh(token);
+
+    this.setCookies(res, authDto.refreshToken);
+    res.status(HttpStatus.OK).send({
+      token_type: 'Bearer',
+      accessToken: authDto.accessToken,
+    });
   }
 
   @Post('/logout')

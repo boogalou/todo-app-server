@@ -32,22 +32,25 @@ export class AuthServiceImpl implements AuthService {
   ) {}
 
   async login(dto: LoginUserDto) {
+    console.log('AuthServiceImpl#login: ', dto);
     const user = await this.userService.getByEmail(dto.email);
-
     if (!user) {
-      throw new UnauthorizedException('Email or password is incorrect');
+      console.log('AuthServiceImpl#login: ', user);
+      throw new UnauthorizedException('User not found');
     }
 
     const isPasswordCorrect = await this.bcryptService.compare(dto.password, user.password);
-
     if (!isPasswordCorrect) {
       throw new UnauthorizedException('Email or password is incorrect');
     }
 
-    const responseDto = this.authMapper.toDto(user);
     const accessToken = this.jwtService.createToken(user.id, user.email, JwtToken.ACCESS_TOKEN);
-    this.logger.info(JSON.stringify(responseDto, null, 2));
-    return { ...responseDto, accessToken } as AuthResponseDto;
+    const refreshToken = this.jwtService.createToken(user.id, user.email, JwtToken.REFRESH_TOKEN);
+
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 
   async refresh(token: string) {
