@@ -28,10 +28,9 @@ export class AuthController {
   ) {}
 
   @Post('/login')
-  @UsePipes(new ValidationPipe())
+  @UsePipes(ValidationPipe)
   @ApiDocs(loginDocs)
   public async login(@Body() dto: LoginUserDto, @Res() res: Response) {
-    console.log(dto);
     const authDto = await this.authService.login(dto);
 
     this.setCookies(res, authDto.refreshToken);
@@ -48,7 +47,6 @@ export class AuthController {
   public async refreshAccessToken(@Cookies('refresh_token') token: string, @Res() res: Response) {
     const authDto = await this.authService.refresh(token);
 
-    this.setCookies(res, authDto.refreshToken);
     res.status(HttpStatus.OK).send({
       token_type: 'Bearer',
       accessToken: authDto.accessToken,
@@ -68,6 +66,7 @@ export class AuthController {
   private setCookies(res: Response, token: string) {
     res.cookie('refresh_token', token, {
       httpOnly: true,
+      secure: true,
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
   }

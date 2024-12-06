@@ -13,8 +13,7 @@ export class SettingsMapperImpl implements SettingsMapper {
   }
 
   mergeUpdate(dto: SettingsDto, entity: Settings): Settings {
-    const updatedFields = plainToInstance(Settings, dto, { excludeExtraneousValues: true });
-    const result = Object.assign(entity, updatedFields);
-    return result;
+    const updatedFields = plainToInstance(Settings, dto, { excludeExtraneousValues: false });
+    return Object.assign(entity, updatedFields);
   }
 }

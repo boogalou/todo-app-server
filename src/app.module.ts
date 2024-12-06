@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { dbconnectConfig } from './infrastructure/configs/dbconnect.config';
 import { AuthMiddleware } from './infrastructure/middleware/auth.middleware';
 import AuthModule from './infrastructure/di/auth.module';
-import BcryptModule from './infrastructure/di/bcrypt.module';
+import PasswordModule from './infrastructure/di/password.module';
 import JwtModule from './infrastructure/di/jwt.module';
 import LoggerModule from './infrastructure/di/logger.module';
 import SettingsModule from './infrastructure/di/settings.module';
@@ -18,7 +18,7 @@ import { ExceptionFormatterModule } from './infrastructure/di/exception-formatte
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync(dbconnectConfig),
     AuthModule,
-    BcryptModule,
+    PasswordModule,
     JwtModule,
     LoggerModule,
     SettingsModule,

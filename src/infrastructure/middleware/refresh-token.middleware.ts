@@ -13,7 +13,6 @@ export class RefreshTokenMiddleware implements NestMiddleware {
 
   async use(req: ExtRequest, res: Response, next: NextFunction) {
     const token = req.cookies['refresh_token'];
-    console.log(token);
     if (!token) {
       throw new ForbiddenException('Access denied. Token not found.');
     }

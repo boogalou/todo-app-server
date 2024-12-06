@@ -5,10 +5,10 @@ import { RefreshTokenMiddleware } from '../middleware/refresh-token.middleware';
 import { Auth_Mapper, Auth_Service } from '../../shared/tokens';
 import { AuthMapperImpl } from '../../application/mappers/auth/auth-mapper.impl';
 import UserModule from './user.module';
-import BcryptModule from './bcrypt.module';
+import PasswordModule from './password.module';
 
 @Module({
-  imports: [UserModule, BcryptModule],
+  imports: [UserModule, PasswordModule],
   providers: [
     {
       provide: Auth_Service,

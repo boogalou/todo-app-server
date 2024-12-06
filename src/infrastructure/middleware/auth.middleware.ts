@@ -19,6 +19,7 @@ import { UserDetailsService } from '../services/user-details.service';
 import { LoggerService } from '../../application/services/logger.service';
 import { ExtRequest, JwtToken } from '../../shared/types';
 import { ExceptionFormatterService } from '../services/exception-formatter.service';
+import { JwtPayload } from 'jsonwebtoken';
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
@@ -33,72 +34,73 @@ export class AuthMiddleware implements NestMiddleware {
     private readonly exceptionFormatter: ExceptionFormatterService,
   ) {}
 
-  async use(request: ExtRequest, response: Response, next: NextFunction) {
+  public async use(request: ExtRequest, response: Response, next: NextFunction) {
     try {
-      const authHeaders = request.headers.authorization;
-      if (!authHeaders || !authHeaders.startsWith('Bearer ')) {
-        request.user = null;
+      const authHeader = request.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
         this.logger.info('AuthMiddleware: Authorization token missing in request header');
-        const formatedResponse = this.exceptionFormatter.formatExceptionResponse(
-          new UnauthorizedException({
-            message: 'Authorization token missing in request header',
-            error_code: 'MISSING_TOKEN',
-          }),
-          request,
-        );
-        response.status(401).json(formatedResponse);
-        return;
+        request.user = null;
+        return next();
       }
 
-      const token = request.headers.authorization.split(' ')[1];
-
-      const tokenPayload = await this.jwtService.validateToken(token, JwtToken.ACCESS_TOKEN);
-      if (!tokenPayload) {
-        request.user = null;
+      const token = authHeader.split(' ')[1];
+      let tokenPayload: string | JwtPayload;
+      try {
+        tokenPayload = await this.jwtService.validateToken(token, JwtToken.ACCESS_TOKEN);
+      } catch (error) {
         this.logger.warn('AuthMiddleware: Invalid or expired authorization token');
-        const formatedResponse = this.exceptionFormatter.formatExceptionResponse(
-          new UnauthorizedException({
-            message: 'Invalid or expired authorization token',
-            error_code: 'INVALID_OR_EXPIRED_TOKEN',
-          }),
+        return this.handleError(
+          response,
+          401,
+          'Invalid or expired authorization token',
+          'INVALID_OR_EXPIRED_TOKEN',
           request,
         );
-        response.status(401).json(formatedResponse);
-        return;
       }
 
       const userId = Number(tokenPayload.sub);
       const userDetails = await this.userDetails.getById(userId);
       if (!userDetails) {
-        request.user = null;
         this.logger.warn(
           `AuthMiddleware: User not found for the provided token's user ID ${userId}`,
         );
-        const formatedResponse = this.exceptionFormatter.formatExceptionResponse(
-          new ForbiddenException({
-            message: 'User authentication failed. User data not found in the database',
-            error_code: 'USER_NOT_FOUND',
-          }),
+        return this.handleError(
+          response,
+          403,
+          'User authentication failed. User data not found in the database',
+          'USER_NOT_FOUND',
           request,
         );
-        response.status(403).json(formatedResponse);
-        return;
       }
 
       request.user = userDetails;
       next();
     } catch (err) {
-      request.user = null;
       this.logger.error(`AuthMiddleware: Authorized Error: ${err.message}`, err.stack);
-      const formatedResponse = this.exceptionFormatter.formatExceptionResponse(
-        new InternalServerErrorException({
-          message: 'Unexpected server error occurred during authentication',
-          error_code: 'SERVER_ERROR_AUTHENTICATION',
-        }),
+      return this.handleError(
+        response,
+        500,
+        'Unexpected server error occurred during authentication',
+        'SERVER_ERROR_AUTHENTICATION',
         request,
       );
-      response.status(500).json(formatedResponse);
-      return;
     }
+  }
+
+  private handleError(
+    response: Response,
+    statusCode: number,
+    message: string,
+    errorCode: string,
+    request: ExtRequest,
+  ) {
+    const formatedResponse = this.exceptionFormatter.formatExceptionResponse(
+      new (statusCode === 401 ? UnauthorizedException : ForbiddenException)({
+        message,
+        error_code: errorCode,
+      }),
+      request,
+    );
+    response.status(statusCode).json(formatedResponse);
   }
 }

@@ -4,6 +4,11 @@ import { SettingsRepository } from '../../../domain/repositories/settings.reposi
 import { Settings_Mapper, Settings_Repository } from '../../../shared/tokens';
 import { SettingsDto } from '../../dto/settings/settings.dto';
 import { SettingsMapper } from '../../mappers/settings/settings-mapper.';
+import { Lang } from '../../../domain/enums/lang.enum';
+import { Theme } from '../../../domain/enums/theme.enum';
+import { DefaultSettingsDto } from '../../dto/settings/default-settings.dto';
+import { User } from '../../../domain/entities/user.entity';
+import { Settings } from '../../../domain/entities/settings.entity';
 
 @Injectable()
 export class SettingsServiceImpl implements SettingsService {
@@ -25,34 +30,39 @@ export class SettingsServiceImpl implements SettingsService {
   }
 
   public async getByUserId(userId: number) {
-    const settings = await this.repository.findByUserId(userId);
-
-    if (!settings) {
-      throw new NotFoundException('Settings not found');
+    const settingsEntity = await this.repository.findByUserId(userId);
+    if (settingsEntity) {
+      return this.settingsMapper.toDto(settingsEntity);
     }
 
-    return settings;
+    const defaultSettings: DefaultSettingsDto = {
+      language: Lang.ENGLISH,
+      theme: Theme.SYSTEM,
+    };
+
+    return this.settingsMapper.toDto(this.settingsMapper.toEntity(defaultSettings));
   }
 
   public async update(userId: number, dto: SettingsDto) {
-    if (!(await this.isExists(dto.id))) {
-      throw new NotFoundException('Task not found');
+    const settingsEntity = await this.repository.findByUserId(userId);
+
+    if (!settingsEntity) {
+      const newSettingsEntity = this.settingsMapper.toEntity(dto);
+      newSettingsEntity.user = { id: userId } as User;
+      await this.repository.save(newSettingsEntity);
+      return this.settingsMapper.toDto(newSettingsEntity);
     }
 
-    await this.repository.update(userId, dto);
-
-    const updatedSettings = await this.getById(dto.id);
-
+    const updatedSettings = this.settingsMapper.mergeUpdate(dto, settingsEntity);
+    await this.repository.save(updatedSettings);
     return this.settingsMapper.toDto(updatedSettings);
+  }
+
+  public async save(entity: Settings) {
+    return this.repository.save(entity);
   }
 
   public async isExists(id: number) {
     return this.repository.isExists(id);
-  }
-
-  public async isOwner(userId: number, settingsId: number) {
-    const settings = await this.getById(settingsId);
-
-    return userId === settings.user.id;
   }
 }

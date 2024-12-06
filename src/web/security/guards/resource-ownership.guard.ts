@@ -24,10 +24,6 @@ export class ResourceOwnership implements CanActivate {
       return await this.taskService.isOwner(userId, resourceId);
     }
 
-    if (request.url.includes('settings')) {
-      return await this.settingsService.isOwner(userId, resourceId);
-    }
-
     return false;
   }
 }

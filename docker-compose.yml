@@ -34,6 +34,12 @@ services:
       - taskflow-network
       - backend
 
+  taskflow-cache:
+    image: redis:alpine
+    container_name: taskflow-cache
+    ports:
+      - "6379:6379"
+
 volumes:
   postgres_data:
 

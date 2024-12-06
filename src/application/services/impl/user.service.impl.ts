@@ -1,10 +1,4 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from '../../../domain/repositories/user.repository';
 import { UserService } from '../user.service';
 import { CreateUserDto } from '../../dto/user/create-user.dto';
@@ -12,13 +6,15 @@ import { User } from '../../../domain/entities/user.entity';
 import { UserMapper } from '../../mappers/user/user.mapper';
 import { UpdateUserDto } from '../../dto/user/update-user.dto';
 import {
-  Bcrypt_Service,
+  Password_Service,
   Logger_Service,
   User_Mapper,
   User_Repository,
+  Settings_Service,
 } from '../../../shared/tokens';
-import { BcryptService } from '../bcrypt.service';
+import { PasswordService } from '../password.service';
 import { LoggerService } from '../logger.service';
+import { SettingsService } from '../settings.service';
 
 @Injectable()
 export class UserServiceImpl implements UserService {
@@ -27,8 +23,8 @@ export class UserServiceImpl implements UserService {
     private readonly repository: UserRepository,
     @Inject(User_Mapper)
     private readonly userMapper: UserMapper,
-    @Inject(Bcrypt_Service)
-    private readonly bcryptService: BcryptService,
+    @Inject(Password_Service)
+    private readonly passwordService: PasswordService,
     @Inject(Logger_Service)
     private readonly logger: LoggerService,
   ) {}
@@ -42,7 +38,7 @@ export class UserServiceImpl implements UserService {
     }
 
     const user = this.userMapper.toEntityFromCreate(dto);
-    user.password = await this.bcryptService.hash(dto.password);
+    user.password = await this.passwordService.hash(dto.password);
 
     this.logger.info(`User with Email ${dto.email} created successfully with ID: ${user.id}`);
     return this.save(user);
@@ -83,7 +79,7 @@ export class UserServiceImpl implements UserService {
   }
 
   public async save(user: User) {
-    return await this.repository.save(user);
+    return this.repository.save(user);
   }
 
   public async isOwner(userId: number, resourceId: number) {

@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { User } from '../../domain/entities/user.entity';
 import { Task } from '../../domain/entities/task.entity';
 import { Settings } from '../../domain/entities/settings.entity';
-import { Migrations1732524893867 } from '../database/1732524893867-migrations';
+import { Migrations1732524893867 } from '../database/migrations/1732524893867-migrations';
 
 config();
 

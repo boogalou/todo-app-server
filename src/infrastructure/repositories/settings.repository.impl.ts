@@ -19,6 +19,14 @@ export class SettingsRepositoryImpl extends BaseRepository<Settings> implements 
     super(repository);
   }
 
+  public async save(entity: Settings): Promise<Settings> {
+    return this.handler(
+      () => this.repository.save(entity),
+      'Error occurred while saving settings.',
+      entity.id,
+    );
+  }
+
   public async findByUserId(userId: number): Promise<Settings | null> {
     return this.handler(
       () => this.repository.findOne({ where: { user: { id: userId } } }),
@@ -36,9 +44,10 @@ export class SettingsRepositoryImpl extends BaseRepository<Settings> implements 
   }
 
   public async update(id: number, dto: SettingsDto): Promise<UpdateResult> {
+    console.log('SettingsRepositoryImpl#update: ', id, dto);
     return this.handler(
       () => this.repository.update(id, dto),
-      'Error occurred while saving settings.',
+      'Error occurred while update settings.',
       id,
     );
   }

@@ -10,4 +10,6 @@ export interface SettingsRepository {
   isExists(id: number): Promise<boolean>;
 
   update(id: number, dto: SettingsDto): Promise<UpdateResult>;
+
+  save(entity: Settings): Promise<Settings>;
 }

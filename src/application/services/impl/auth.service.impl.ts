@@ -3,7 +3,7 @@ import { LoginUserDto } from '../../dto/auth/login-user.dto';
 import { AuthService } from '../auth.service';
 import {
   Auth_Mapper,
-  Bcrypt_Service,
+  Password_Service,
   Jwt_Service,
   Logger_Service,
   User_Service,
@@ -13,7 +13,7 @@ import { AuthMapper } from '../../mappers/auth/auth-mapper';
 import { AuthResponseDto } from '../../dto/auth/auth-response.dto';
 import { JwtService } from '../jwt.service';
 import { LoggerService } from '../logger.service';
-import { BcryptService } from '../bcrypt.service';
+import { PasswordService } from '../password.service';
 import { JwtToken } from '../../../shared/types';
 
 @Injectable()
@@ -27,15 +27,13 @@ export class AuthServiceImpl implements AuthService {
     private readonly jwtService: JwtService,
     @Inject(Logger_Service)
     private readonly logger: LoggerService,
-    @Inject(Bcrypt_Service)
-    private readonly bcryptService: BcryptService,
+    @Inject(Password_Service)
+    private readonly bcryptService: PasswordService,
   ) {}
 
   async login(dto: LoginUserDto) {
-    console.log('AuthServiceImpl#login: ', dto);
     const user = await this.userService.getByEmail(dto.email);
     if (!user) {
-      console.log('AuthServiceImpl#login: ', user);
       throw new UnauthorizedException('User not found');
     }
 

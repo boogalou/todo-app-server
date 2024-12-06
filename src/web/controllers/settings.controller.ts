@@ -22,14 +22,13 @@ export class SettingsController {
 
   @Get()
   @ApiDocs(getUserSettingsDocs)
-  async getSettingsByUserId(@UserAuth() user: UserDetails) {
+  async getSettings(@UserAuth() user: UserDetails) {
     return this.settingsService.getByUserId(user.id);
   }
 
   @Patch()
-  @UseGuards(ResourceOwnership)
   @ApiDocs(updateSettingsDocs)
-  async update(@UserAuth() user: UserDetails, @Body(new ValidationPipe()) dto: SettingsDto) {
+  async update(@UserAuth() user: UserDetails, @Body(ValidationPipe) dto: SettingsDto) {
     return this.settingsService.update(user.id, dto);
   }
 }
