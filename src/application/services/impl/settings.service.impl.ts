@@ -6,7 +6,6 @@ import { SettingsDto } from '../../dto/settings/settings.dto';
 import { SettingsMapper } from '../../mappers/settings/settings-mapper.';
 import { Lang } from '../../../domain/enums/lang.enum';
 import { Theme } from '../../../domain/enums/theme.enum';
-import { DefaultSettingsDto } from '../../dto/settings/default-settings.dto';
 import { User } from '../../../domain/entities/user.entity';
 import { Settings } from '../../../domain/entities/settings.entity';
 
@@ -35,7 +34,7 @@ export class SettingsServiceImpl implements SettingsService {
       return this.settingsMapper.toDto(settingsEntity);
     }
 
-    const defaultSettings: DefaultSettingsDto = {
+    const defaultSettings: SettingsDto = {
       language: Lang.ENGLISH,
       theme: Theme.SYSTEM,
     };

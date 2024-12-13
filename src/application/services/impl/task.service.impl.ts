@@ -27,7 +27,7 @@ export class TaskServiceImpl implements TaskService {
 
     const user = await this.userService.getById(userId);
 
-    taskEntity.user = user;
+    taskEntity.user = Promise.resolve(user);
 
     const savedTask = await this.save(taskEntity);
 
@@ -85,8 +85,8 @@ export class TaskServiceImpl implements TaskService {
 
   public async isOwner(userId: number, resourceId: number) {
     const task = await this.getById(resourceId);
-
-    if (userId !== task.user.id) {
+    const user = await task.user;
+    if (userId !== user.id) {
       throw new ForbiddenException("You don't have enough permissions for this action");
     }
 

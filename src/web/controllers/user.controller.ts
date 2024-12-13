@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
   Inject,
@@ -17,12 +18,13 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
-import { ExtRequest } from '../../shared/types';
+import { ExtRequest, UserDetails } from '../../shared/types';
 import { JwtAuthGuard } from '../security/guards/jwt-auth.guard';
 import { UserService } from '../../application/services/user.service';
 import { UpdateUserDto } from '../../application/dto/user/update-user.dto';
 import { CreateUserDto } from '../../application/dto/user/create-user.dto';
 import { User_Service } from '../../shared/tokens';
+import { UserAuth } from '../security/decorators/user-details.decorator';
 
 @ApiTags('users')
 @Controller('/users')
@@ -39,13 +41,19 @@ export class UserController {
     return 'User was successfully created';
   }
 
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async getUser(@UserAuth() user: UserDetails) {
+    return this.userService.getById(user.id);
+  }
+
   @Patch()
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe())
   async update(@Body() dto: UpdateUserDto) {
-    const editedUser = await this.userService.update(dto);
-    return editedUser;
+    return this.userService.update(dto);
   }
 
   @Delete('/:id')

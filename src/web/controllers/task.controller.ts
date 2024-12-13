@@ -57,6 +57,7 @@ export class TaskController {
     @Param('id', ParseIntPipe) taskId: number,
     @Body(ValidationPipe) dto: UpdateTaskDto,
   ) {
+    console.log('updateTask: ', dto);
     return this.taskService.update(taskId, dto);
   }
 
