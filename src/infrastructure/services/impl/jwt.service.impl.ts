@@ -12,7 +12,7 @@ const JWT_URL_SECRET = 'JWT_URL_SECRET';
 export class JwtServiceImpl implements JwtService {
   constructor(private readonly configService: ConfigService) {}
 
-  async validateToken(token: string, tokenType: JwtToken) {
+  public async validateToken(token: string, tokenType: JwtToken) {
     let secret: string;
 
     switch (tokenType) {
@@ -42,7 +42,7 @@ export class JwtServiceImpl implements JwtService {
     }
   }
 
-  createToken(userId: number, userEmail: string, tokenType: JwtToken) {
+  public createToken(userId: number, userEmail: string, tokenType: JwtToken) {
     const payload = {
       sub: userId,
       email: userEmail,

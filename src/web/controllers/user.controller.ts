@@ -52,8 +52,8 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe())
-  async update(@Body() dto: UpdateUserDto) {
-    return this.userService.update(dto);
+  async update(@Body() dto: UpdateUserDto, @UserAuth() user: UserDetails) {
+    return this.userService.update(dto, user.id);
   }
 
   @Delete('/:id')

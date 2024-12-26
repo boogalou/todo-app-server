@@ -12,8 +12,9 @@ export class UserMapperImpl implements UserMapper {
     return plainToInstance(User, dto);
   }
 
-  toEntityFromUpdate(dto: UpdateUserDto): User {
-    return plainToInstance(User, dto);
+  mergeUpdate(dto: UpdateUserDto, existingEntity: User): User {
+    const updatedEntity = { ...instanceToPlain(existingEntity), ...dto };
+    return plainToInstance(User, updatedEntity);
   }
 
   toDto(entity: User): UserDto {

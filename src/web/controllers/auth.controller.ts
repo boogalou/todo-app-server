@@ -32,7 +32,7 @@ export class AuthController {
   @ApiDocs(loginDocs)
   public async login(@Body() dto: LoginUserDto, @Res() res: Response) {
     const authDto = await this.authService.login(dto);
-
+    console.log('Setting cookie with path:', authDto.refreshToken);
     this.setCookies(res, authDto.refreshToken);
 
     res.status(HttpStatus.OK).send({
@@ -67,6 +67,8 @@ export class AuthController {
     res.cookie('refresh_token', token, {
       httpOnly: true,
       secure: true,
+      sameSite: 'strict',
+      path: '/api/v1/auth/refresh',
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
   }

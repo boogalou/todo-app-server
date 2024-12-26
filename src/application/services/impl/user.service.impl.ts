@@ -6,15 +6,13 @@ import { User } from '../../../domain/entities/user.entity';
 import { UserMapper } from '../../mappers/user/user.mapper';
 import { UpdateUserDto } from '../../dto/user/update-user.dto';
 import {
-  Password_Service,
   Logger_Service,
+  Password_Service,
   User_Mapper,
   User_Repository,
-  Settings_Service,
 } from '../../../shared/tokens';
 import { PasswordService } from '../password.service';
 import { LoggerService } from '../logger.service';
-import { SettingsService } from '../settings.service';
 
 @Injectable()
 export class UserServiceImpl implements UserService {
@@ -72,10 +70,14 @@ export class UserServiceImpl implements UserService {
     return await this.repository.isExists(email);
   }
 
-  public async update(dto: UpdateUserDto) {
-    const user = this.userMapper.toEntityFromUpdate(dto);
+  public async update(dto: UpdateUserDto, userId: number) {
+    const userEntity = await this.getById(userId);
 
-    return await this.save(user);
+    const mergedUser = this.userMapper.mergeUpdate(dto, userEntity);
+
+    const updateUser = await this.save(mergedUser);
+    console.log(this.userMapper.toDto(updateUser));
+    return this.userMapper.toDto(updateUser);
   }
 
   public async save(user: User) {
