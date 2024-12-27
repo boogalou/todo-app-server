@@ -18,6 +18,6 @@ export class UserMapperImpl implements UserMapper {
   }
 
   toDto(entity: User): UserDto {
-    return plainToInstance(UserDto, instanceToPlain(entity));
+    return plainToInstance(UserDto, instanceToPlain(entity), { excludeExtraneousValues: true });
   }
 }

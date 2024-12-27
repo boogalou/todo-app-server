@@ -16,7 +16,6 @@ export class TaskMapperImpl implements TaskMapper {
 
   mergeUpdate(dto: UpdateTaskDto, entity: Task): Task {
     const updatedFields = plainToInstance(Task, dto, { excludeExtraneousValues: true });
-    const result = Object.assign(entity, updatedFields);
-    return result;
+    return Object.assign(entity, updatedFields);
   }
 }
