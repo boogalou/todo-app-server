@@ -10,9 +10,12 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Put,
   Req,
   Res,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -25,6 +28,7 @@ import { UpdateUserDto } from '../../application/dto/user/update-user.dto';
 import { CreateUserDto } from '../../application/dto/user/create-user.dto';
 import { User_Service } from '../../shared/tokens';
 import { UserAuth } from '../security/decorators/user-details.decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('users')
 @Controller('/users')
@@ -67,6 +71,11 @@ export class UserController {
     res.status(HttpStatus.NO_CONTENT);
   }
 
-  @Patch('/:id/avatar')
-  async updateAvatar() {}
+  @Put('/:id/avatar')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  async updateAvatar(@Param('id') userId: number, @UploadedFile() file: Express.Multer.File) {
+    console.log('userId: ', userId);
+    console.log('file: ', file);
+  }
 }

@@ -13,6 +13,8 @@ services:
       - NODE_ENV=production
     depends_on:
       - taskflow-db
+      - taskflow-cache
+      - taskflow-storage
     networks:
       - taskflow-network
       - backend
@@ -39,9 +41,37 @@ services:
     container_name: taskflow-cache
     ports:
       - "6379:6379"
+    restart: always
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    command:  ["redis-server", "--requirepass", "${REDIS_PASSWORD}", "--save", "60 1", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    networks:
+      - taskflow-network
+      - backend
+
+  taskflow-storage:
+    image: minio/minio:latest
+    container_name: taskflow-storage
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    restart: always
+    environment:
+      MINIO_ROOT_USER: ${MINIO_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}
+    command: server ~/minio --console-address :9001
+    volumes:
+      - minio_data:/data
+    networks:
+      - taskflow-network
+      - backend
 
 volumes:
   postgres_data:
+  minio_data:
+  redis_data:
 
 networks:
   taskflow-network:
