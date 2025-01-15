@@ -21,6 +21,10 @@ export const Settings_Service = Symbol('SETTINGS_SERVICE');
 export const Settings_Repository = Symbol('SETTINGS_REPOSITORY');
 export const Settings_Mapper = Symbol('SETTINGS_MAPPER');
 
+// Minio Module
+export const File_Storage_Repository = Symbol('FILE_REPOSITORY');
+export const File_Storage_Service = Symbol('FILE_STORAGE_SERVICE');
+
 // Logger Module
 export const Logger_Service = Symbol('LOGGER_SERVICE');
 

@@ -75,7 +75,6 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
   async updateAvatar(@Param('id') userId: number, @UploadedFile() file: Express.Multer.File) {
-    console.log('userId: ', userId);
-    console.log('file: ', file);
+    return this.userService.updateAvatar(userId, file);
   }
 }

@@ -12,6 +12,7 @@ import TaskModule from './infrastructure/di/task.module';
 import UserModule from './infrastructure/di/user.module';
 import { OwnershipModule } from './infrastructure/di/ownership.module';
 import { ExceptionFormatterModule } from './infrastructure/di/exception-formatter.module';
+import { FileStorageModule } from './infrastructure/di/file-storage.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { ExceptionFormatterModule } from './infrastructure/di/exception-formatte
     UserModule,
     OwnershipModule,
     ExceptionFormatterModule,
+    FileStorageModule,
   ],
   providers: [Logger],
 })

@@ -17,4 +17,6 @@ export interface UserService {
   update(dto: UpdateUserDto, id: number): Promise<UserDto>;
 
   delete(id: number): Promise<boolean>;
+
+  updateAvatar(id: number, file: Express.Multer.File): Promise<UserDto>;
 }

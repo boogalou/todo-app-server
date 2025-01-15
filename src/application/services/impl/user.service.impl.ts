@@ -6,6 +6,7 @@ import { User } from '../../../domain/entities/user.entity';
 import { UserMapper } from '../../mappers/user/user.mapper';
 import { UpdateUserDto } from '../../dto/user/update-user.dto';
 import {
+  File_Storage_Service,
   Logger_Service,
   Password_Service,
   User_Mapper,
@@ -13,6 +14,7 @@ import {
 } from '../../../shared/tokens';
 import { PasswordService } from '../password.service';
 import { LoggerService } from '../logger.service';
+import { FileStorageService } from '../file-storage.service';
 
 @Injectable()
 export class UserServiceImpl implements UserService {
@@ -25,6 +27,8 @@ export class UserServiceImpl implements UserService {
     private readonly passwordService: PasswordService,
     @Inject(Logger_Service)
     private readonly logger: LoggerService,
+    @Inject(File_Storage_Service)
+    private readonly fileStorageService: FileStorageService,
   ) {}
 
   public async create(dto: CreateUserDto) {
@@ -82,6 +86,25 @@ export class UserServiceImpl implements UserService {
 
   public async save(user: User) {
     return this.repository.save(user);
+  }
+
+  public async updateAvatar(id: number, file: Express.Multer.File) {
+    const userEntity = await this.getById(id);
+
+    if (userEntity.userPic) {
+      await this.fileStorageService.deleteFile('avatars', userEntity.userPic);
+    }
+
+    const uniqueFileName = `${id}-${Date.now()}-${file.originalname}`;
+
+    await this.fileStorageService.uploadFile('avatars', uniqueFileName, file.buffer);
+
+    const fileUrl = `http://localhost:9000/avatars/${uniqueFileName}`;
+
+    userEntity.userPic = fileUrl;
+    const updatedUser = await this.save(userEntity);
+
+    return this.userMapper.toDto(updatedUser);
   }
 
   public async isOwner(userId: number, resourceId: number) {
