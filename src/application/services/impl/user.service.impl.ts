@@ -66,7 +66,7 @@ export class UserServiceImpl implements UserService {
     if (!userEntity) {
       throw new NotFoundException('User not found');
     }
-
+    console.log(this.userMapper.toDto(userEntity));
     return userEntity;
   }
 
@@ -80,7 +80,6 @@ export class UserServiceImpl implements UserService {
     const mergedUser = this.userMapper.mergeUpdate(dto, userEntity);
 
     const updateUser = await this.save(mergedUser);
-    console.log(this.userMapper.toDto(updateUser));
     return this.userMapper.toDto(updateUser);
   }
 

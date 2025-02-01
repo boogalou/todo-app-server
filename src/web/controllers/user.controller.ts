@@ -26,9 +26,10 @@ import { JwtAuthGuard } from '../security/guards/jwt-auth.guard';
 import { UserService } from '../../application/services/user.service';
 import { UpdateUserDto } from '../../application/dto/user/update-user.dto';
 import { CreateUserDto } from '../../application/dto/user/create-user.dto';
-import { User_Service } from '../../shared/tokens';
+import { User_Mapper, User_Service } from '../../shared/tokens';
 import { UserAuth } from '../security/decorators/user-details.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { UserMapper } from '../../application/mappers/user/user.mapper';
 
 @ApiTags('users')
 @Controller('/users')
@@ -36,6 +37,8 @@ export class UserController {
   constructor(
     @Inject(User_Service)
     private readonly userService: UserService,
+    @Inject(User_Mapper)
+    private readonly userMapper: UserMapper,
   ) {}
 
   @Post('/registration')
@@ -49,7 +52,8 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async getUser(@UserAuth() user: UserDetails) {
-    return this.userService.getById(user.id);
+    const userEtity = await this.userService.getById(user.id);
+    return this.userMapper.toDto(userEtity);
   }
 
   @Patch()
