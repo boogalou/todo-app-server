@@ -4,6 +4,7 @@ import {
   HttpStatus,
   Inject,
   Post,
+  Req,
   Res,
   UseGuards,
   UsePipes,
@@ -18,6 +19,7 @@ import { ApiDocs } from '../../shared/api-docs';
 import { loginDocs, logoutDocs, refreshTokensDocs } from '../docs/auth.docs';
 import { Auth_Service } from '../../shared/tokens';
 import { AuthService } from '../../application/services/auth.service';
+import { ExtRequest } from '../../shared/types';
 
 @ApiTags('auth')
 @Controller('/auth')
@@ -57,7 +59,8 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiDocs(logoutDocs)
   @UseGuards(JwtAuthGuard)
-  public async logout(@Res() res: Response) {
+  public async logout(@Res() res: Response, @Req() req: ExtRequest) {
+    console.log('Cookie', req.cookies);
     res.clearCookie('refresh_token');
     res.setHeader('Authorization', '');
     res.status(HttpStatus.OK).send({});
@@ -68,7 +71,6 @@ export class AuthController {
       httpOnly: true,
       secure: true,
       sameSite: 'strict',
-      path: '/api/v1/auth/refresh',
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
   }

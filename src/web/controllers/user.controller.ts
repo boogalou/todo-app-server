@@ -42,10 +42,9 @@ export class UserController {
   ) {}
 
   @Post('/registration')
-  @HttpCode(HttpStatus.CREATED)
-  async registration(@Body() createUserDto: CreateUserDto) {
+  async registration(@Body() createUserDto: CreateUserDto, @Res() res: Response) {
     await this.userService.create(createUserDto);
-    return 'User was successfully created';
+    res.status(HttpStatus.CREATED).send('User was successfully created');
   }
 
   @Get()
