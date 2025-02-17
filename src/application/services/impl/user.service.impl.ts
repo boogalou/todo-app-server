@@ -15,10 +15,12 @@ import {
 import { PasswordService } from '../password.service';
 import { LoggerService } from '../logger.service';
 import { FileStorageService } from '../file-storage.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserServiceImpl implements UserService {
   constructor(
+    private readonly configService: ConfigService,
     @Inject(User_Repository)
     private readonly repository: UserRepository,
     @Inject(User_Mapper)
@@ -98,7 +100,7 @@ export class UserServiceImpl implements UserService {
 
     await this.fileStorageService.uploadFile('avatars', uniqueFileName, file.buffer);
 
-    const fileUrl = `http://localhost:9000/avatars/${uniqueFileName}`;
+    const fileUrl = `${this.configService.get('MINIO_URL')}:${this.configService.get('MINIO_PORT')}/avatars/${uniqueFileName}`;
 
     userEntity.userPic = fileUrl;
     const updatedUser = await this.save(userEntity);
