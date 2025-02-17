@@ -52,7 +52,7 @@ services:
       - backend
 
   taskflow-storage:
-    image: minio/minio:latest
+    image: ${MINIO_IMAGE_VERSION}
     container_name: taskflow-storage
     ports:
       - '9000:9000'

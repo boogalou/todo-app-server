@@ -33,8 +33,8 @@ export class AuthController {
   @UsePipes(ValidationPipe)
   @ApiDocs(loginDocs)
   public async login(@Body() dto: LoginUserDto, @Res() res: Response) {
+    console.log('Setting cookie with path:', dto);
     const authDto = await this.authService.login(dto);
-    console.log('Setting cookie with path:', authDto.refreshToken);
     this.setCookies(res, authDto.refreshToken);
 
     res.status(HttpStatus.OK).send({
