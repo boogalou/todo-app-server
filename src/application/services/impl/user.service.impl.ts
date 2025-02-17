@@ -100,7 +100,7 @@ export class UserServiceImpl implements UserService {
 
     await this.fileStorageService.uploadFile('avatars', uniqueFileName, file.buffer);
 
-    const fileUrl = `${this.configService.get('MINIO_URL')}:${this.configService.get('MINIO_PORT')}/avatars/${uniqueFileName}`;
+    const fileUrl = this.configService.get('MINIO_BUCKET_URL') + uniqueFileName;
 
     userEntity.userPic = fileUrl;
     const updatedUser = await this.save(userEntity);
